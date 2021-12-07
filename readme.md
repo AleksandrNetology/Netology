@@ -1,7 +1,7 @@
 # Netology
 
-# Home lesson 2.1
-# описание файла Terraform.gitignore
+# 2.1. Системы контроля версий.
+# Описание файла Terraform.gitignore
 
 **/.terraform/*
 # всё содержимое директории .terraform игнорируется
