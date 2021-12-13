@@ -23,3 +23,4 @@ terraform.rc
 *_override.tf.json
 # файлы, оканчивающиеся так - игнорируются
 
+# Новые ветки с помощью git switch -c <new_branch_name> <tag>
