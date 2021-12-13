@@ -1,4 +1,4 @@
-# Clone.Netology
+# Netology
 
 # 2.1. Системы контроля версий.
 # Описание файла Terraform.gitignore
