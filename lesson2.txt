@@ -93,6 +93,6 @@
 	
 05. Killer фича - ветвления;
 	
-	> git log --oneline --decorate --graph --all   - показывает все ветвления проекта.
+	> git log --oneline --decorate --graph --all   - показывает все ветвления проекта. {можно без --decorate - включена в комманду по умолчанию}
 	> git switch -c <new_branch_name> - создать новую ветку проекта.
 -------
