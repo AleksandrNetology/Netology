@@ -61,9 +61,19 @@
 	> git push <repository> --delete <метка> - удаление меток из удалённого репозитория.
 	
 	> git checkout <метка> - переход на конккретный тэг
+	> git switch -c <new_branch_name> <tag> - или в следующей строке -->
+	> git checkout -b <new_branch_name> <tag>  - создать новую ветку с этого места: > git checkout <метка> 
+												Если не указать название метки, то новая ветка будет создана от коммита, в котором мы сейчас находимся.
+												Можно сначала сделать переход на коммит, от которого будет создана новая ветка, а можно из любого коммита,
+												в котором мы сейчас стоим, начать новую ветку просто указав метку этого коммита, если оная есть.
 	
-
-
+	Алиасы:
+	> git config --global alias.co checkout
+	> git config --global alias.br branch
+	> git config --global alias.ct commit
+	> git config --global alias.st status
+	> git config --global alias.last 'log -1 HEAD'
+	
 05. Killer фича - ветвления;
 
 -------
