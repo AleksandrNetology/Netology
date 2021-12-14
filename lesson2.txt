@@ -93,8 +93,12 @@
 	> git config --global alias.st status
 	> git config --global alias.last 'log -1 HEAD'
 	
-05. Killer фича - ветвления;
+05. Ветвления;
 	
 	> git log --oneline --graph --all   - показывает все ветвления проекта.
 	> git switch -c <new_branch_name> - создать новую ветку проекта.
--------
+	
+06. Ветвления Git.
+
+
+
