@@ -116,3 +116,15 @@
 		2 files changed, 7 insertions(+), 4 deletions(-)		# total changes
 ----------------------------------------------------------------------------------------------
 
+
+
+Трёх стороннее слияние должно было быть выполнено по методу рекурсии ('recursive' strategy)
+Но у меня получилось методом 'ort'. ХЗ что это.
+Пример -----------------------------------------------
+HOME@iGO MINGW64 /c/Git/GitHub (main)
+$ git merge exofix_1
+Merge made by the 'ort' strategy.
+ lesson1.txt | 4 ++--
+ outlines.md | 4 +++-
+ 2 files changed, 5 insertions(+), 3 deletions(-)
+ -----------------------------------------------------
