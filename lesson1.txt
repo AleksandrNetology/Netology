@@ -1,3 +1,3 @@
-Системы контроля версий
+# Системы контроля версий
 
-Это файл для урока про забытые и лишние коммиты.
+# sto studiando il sistema di controllo della versione
