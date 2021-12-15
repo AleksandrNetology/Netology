@@ -113,7 +113,6 @@
 	Fast-forward												# git сообщает, что объединение произошло методом Fast-forward т.е. указатель просто переместился с последнего коммита main на коммит hotfix.
 		outlines.txt | 7 ++++---								# изменения первого файла
 		readme.md    | 4 +++-									# изменения второго файла
-		2 files changed, 7 insertions(+), 4 deletions(-)		# total
+		2 files changed, 7 insertions(+), 4 deletions(-)		# total changes
 ----------------------------------------------------------------------------------------------
-
 
