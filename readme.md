@@ -1,6 +1,6 @@
 # ------------------------------------------------------
 # Как вы получаете метод 'recurcive' при merge?
-# У меня всегда только 'ort'. Или ort = recurcive?
+# У меня всегда только 'ort'.
 
 $ git merge origin/git-merge
 Merge made by the 'ort' strategy.
