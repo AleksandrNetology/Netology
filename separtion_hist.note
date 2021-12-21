@@ -1,0 +1,119 @@
+Разделение и объединение истории.
+Команда replace
+
+
+
+
+
+
+> git branch fix-history ae30085   - выбираем себе подходящий коммит ae30085 и создаём на нём ветку fix-history
+
+> git remote add project-history https://github.com/AleksandrNetology/fix-history
+Подключаем новый удалённый репозиторий с именем project-history для ветки fix-history
+
+> git push project-history fix-history:main
+Пушим в удалённый репозиторий project-history локальную ветку fix-history на ветку main удалённого репозитория.
+
+Как правильно усечь историю?
+- создать базовый коммит с описание, где найти всю историю.
+- сделаем один общий коммит в обоих репозиториях.
+
+Итак, погнали:
+
+$ git log --oneline
+94365af (HEAD -> fix, origin/fix) clear readme.md
+6648d46 Update README.md
+cc5144a lesson advanced merge is complete
+2481b4c git --abort  succesful tested
+f20677c test commit for merge abort 01
+375b027 test commit for merge abort
+ce9994b Home work about merge and rebase
+a5c214a (gitlab/fix, bitbuc/fix) some words about HEAD
+d5fcfa4 (tag: v0.3-fix) No answers, unfortunately
+fc0d2a5 Answer?
+dfc51cd (project-history/main, fix-history) new file  ---- это коммит перекрытия. На нём начинается ветка fix-history. 
+80f543b change file in branch 'fix'                   ---- этот коммит мы будем использовать как базовый для нового репозитория
+12ffb5c branch 'fix'
+ae30085 New branch 'fix'
+1192c91 (tag: v0.0) Prepare to delete and move
+
+$ echo 'How to find full history' | git commit-tree 80f543b^{tree}		-- описание ниже	 
+5998da7bf06c6bf8c1b99d38dc1803a454cf455a								-- это вывод комманды
+
+где сама команда commit-tree является внутренней, технической. Указываем этой технической команде, хэш нужного коммита с вот
+таким прицепом ^{tree}, а она сознаёт новый коммит (5998da7*) с новым хэшем и он будет являться полной копией выбранного нами коммита.
+
+Далее, нам необходимо все коммиты, начиная с dfc51cd ребейснуть на только что созданный коммит 5998da7*.
+
+$ git rebase --onto 5998da7bf06c6bf8c1b99d38dc1803a454cf455a dfc51cd
+
+Т.о. у нас изменятся все хэщи ребейснутых коммитов, а все исторические коммиты сохранят свои хэши.
+
+
+Теперь у нас есть 2 ветки. Одна с ограниченной историей, и вторая с полной.
+Помним, что полную ветку, до ребейса, мы сохраняли в отдельном удаленном репозитории.
+Клонируем её себе обратно:
+
+$ git clone https://github.com/AleksandrNetology/fix-history
+Cloning into 'fix-history'...
+remote: Enumerating objects: 33, done.
+remote: Counting objects: 100% (33/33), done.
+remote: Compressing objects: 100% (15/15), done.
+remote: Total 33 (delta 8), reused 33 (delta 8), pack-reused 0
+Receiving objects: 100% (33/33), 5.52 KiB | 1.10 MiB/s, done.
+Resolving deltas: 100% (8/8), done.
+
+Отлично, всё получилось.
+
+Теперь, если посмотреть историю ветки fix, то она будет короткой:
+
+$ git log --oneline fix
+1f69083 (HEAD -> fix) Update README.md
+fb8035a lesson advanced merge is complete
+1060ba3 test commit for merge abort
+db2bcaf test commit for merge abort 01
+db5a07b Home work about merge and rebase
+5998da7 How to find full history
+
+Смотрим историю полностью:
+
+$ git log --oneline project-history/main
+dfc51cd (project-history/main, fix-history) new file
+80f543b change file in branch 'fix'
+12ffb5c branch 'fix'
+ae30085 New branch 'fix'
+1192c91 (tag: v0.0) Prepare to delete and move
+aa001a7 Added gitirnore
+16f1d30 First local commit
+960e57e Merge pull request #3 from AleksandrNetology/AleksandrNetology-patch-1
+1d8f447 (origin/AleksandrNetology-patch-1) Update README.md
+d33b909 Update README.md
+1ff27d4 Initial commit 
+
+И вот теперь мы возвращаемся к команде replace.
+С её помощью мы показывает git какой коммит нужно заменить на какой.
+
+На нашем примере:
+$git replace 5998da7bf06c6bf8c1b99d38dc1803a454cf455a dfc51cd  -замени коммит из ветки fix (5998da7**) на коммит из ветки fix-history (dfc51cd)
+Т.о. у нас произойдёт бесшовное объединение исторической и обрезанной веток.
+
+$ git replace 5998da7bf06c6bf8c1b99d38dc1803a454cf455a dfc51cd
+
+HOME@iGO MINGW64 /c/Git/GitHub/fix-hist (fix)
+$ git log --oneline fix
+1f69083 (HEAD -> fix) Update README.md
+fb8035a lesson advanced merge is complete
+1060ba3 test commit for merge abort
+db2bcaf test commit for merge abort 01
+db5a07b Home work about merge and rebase
+5998da7 (replaced) new file
+80f543b change file in branch 'fix'
+12ffb5c branch 'fix'
+ae30085 New branch 'fix'
+1192c91 (tag: v0.0) Prepare to delete and move
+aa001a7 Added gitirnore
+16f1d30 First local commit
+960e57e Merge pull request #3 from AleksandrNetology/AleksandrNetology-patch-1
+1d8f447 (origin/AleksandrNetology-patch-1) Update README.md
+d33b909 Update README.md
+1ff27d4 Initial commit
