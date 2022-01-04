@@ -1,0 +1,4 @@
+От ветки main отделена новая ветка с именет refix
+подключены 2 новых удалённых репозитория:
+1. gitlab https://gitlab.com/AleksandrNetology/netologylessons.git
+2. bitbuc https://AleksandrNetology@bitbucket.org/aleksandrnetology/netology.git
