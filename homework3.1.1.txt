@@ -1,0 +1,74 @@
+8.1 какой переменной можно задать длину журнала history, и на какой строчке manual это описывается?
+
+vagrant@vagrant:~$ man bash | grep -n 'HISTFILESIZE'
+1121:       HISTFILESIZE
+
+8.2 что делает директива ignoreboth в bash?
+
+Значение ignoreboth является сокращением для ignorespace и ignoredups:
+	ignorespaces - игнорировать команды, начинающиеся с пробелов
+	ignoredups - игнорировать дубликаты команд
+Описание этого непонятно чего приводится в разделе про параметр HISTCONTROL
+	
+Вся эта хрень вставляется в файл ~/.bashrc - это файл с настройками bash
+Описание тут: http://www.linuxjournal.su/777/
+И тут ещё смотрел: https://qastack.ru/ubuntu/15926/how-to-avoid-duplicate-entries-in-bash-history
+
+9. В каких сценариях использования применимы скобки {} и на какой строчке man bash это описано?
+
+Фигурные скобки на англ. называются brace. Впервые это слово в man bash встрнечается на строчке 511:
+"...If the function reserved word is used, but the parentheses are not supplied, the braces are required."
+
+Вот здесь хорошо написано про brace: http://rus-linux.net/lib.php?name=/MyLDP/consol/brace-ru.html
+Разместил статью в отдельном файле: brace.note
+
+10. как создать однократным вызовом touch 100000 файлов? 
+touch {000001..100000}.md
+
+Получится ли аналогичным образом создать 300000? Если нет, то почему?
+300 тыс тоже можно создать, но за три приёма.
+
+Хорошая статья по команде touch нашлась тут:
+https://omgubuntu.ru/15-polieznykh-primierov-ispolzovaniia-komandy-touch-v-sistiemakh-linux/
+	
+Разместил её в файле touch.docx
+
+11. В man bash поищите по /\[\[. Что делает конструкция [[ -d /tmp ]]
+
+Поискал. Ничего не нашёл. Видимо, оно всё как-то спрятано так, что для новичков в линукс - не найти этого.
+Гуглим. Есть статья https://www.opennet.ru/docs/RUS/bash_scripting_guide/c2171.html
+Тут есть про разные скобки. Ничего не понятно, но копию статьи скину в файл: skobki.docx
+
+Нашёл статью по основам bash (https://habr.com/ru/post/47163/) Стало немного понятнее. Про -d всё равно ничего нет.
+
+Что делает конструкция [[ -d /tmp ]] - я не понимаю.  Где про это прочитать тоже не нашёл.
+
+12. Основываясь на знаниях о просмотре текущих (например, PATH) и установке новых переменных; командах, которые мы рассматривали, добейтесь в выводе type -a bash в виртуальной машине наличия первым пунктом в списке:
+
+
+АЛЁ! Каких переменных? Где мы их рассматривали?????
+Вопросов не понял. Ответов не будет.
+
+13. Чем отличается планирование команд с помощью batch и at?
+Первый раз в man описано хоть что-то понятно и гуглить надо только примеры с применением.
+Хорошее описание тут: https://codepre.com/ru/how-to-use-at-and-batch-on-linux-to-schedule-commands.html
+Вынес в файл: shcedule.docx
+
+at      executes commands at a specified time
+
+batch   executes commands when system load levels permit; in other words,
+               when the load average drops below 1.5, or the value specified  in
+               the invocation of atd.
+
+
+
+
+
+
+
+
+
+
+
+
+
