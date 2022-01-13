@@ -26,20 +26,64 @@
 			ready to `vagrant up` your first virtual environment! Please read
 			the comments in the Vagrantfile as well as documentation on
 			`vagrantup.com` for more information on using Vagrant.
-	- Vagrantfile:
+	- Редактирую Vagrantfile:
 	
 		Vagrant.configure("2") do |config|
 			config.vm.box  = "bento/ubuntu-20.04"
 		end
 	
 	- > vagrant up
+			Bringing machine 'default' up with 'virtualbox' provider...
+			==> default: Importing base box 'bento/ubuntu-20.04'...
+
+			[KProgress: 40%
+			[K==> default: Matching MAC address for NAT networking...
+				==> default: Checking if box 'bento/ubuntu-20.04' version '202112.19.0' is up to date...
+				==> default: Setting the name of the VM: tmp_default_1642097807186_92949
+				==> default: Clearing any previously set network interfaces...
+				==> default: Preparing network interfaces based on configuration...
+				default: Adapter 1: nat
+				==> default: Forwarding ports...
+				default: 22 (guest) => 2222 (host) (adapter 1)
+				==> default: Booting VM...
+				==> default: Waiting for machine to boot. This may take a few minutes...
+					default: SSH address: 127.0.0.1:2222
+					default: SSH username: vagrant
+					default: SSH auth method: private key
+	------ 8< -----------------------------
+	
 	- > vagrant suspend
-	- > vagrant halt	
+			==> default: Saving VM state and suspending execution...
+
+	- > vagrant up
+			Bringing machine 'default' up with 'virtualbox' provider...
+			==> default: Checking if box 'bento/ubuntu-20.04' version '202112.19.0' is up to date...
+			==> default: Resuming suspended VM...
+			==> default: Booting VM...
+			==> default: Waiting for machine to boot. This may take a few minutes...
+			default: SSH address: 127.0.0.1:2222
+			default: SSH username: vagrant
+			default: SSH auth method: private key
+			default:
+			default: Vagrant insecure key detected. Vagrant will automatically replace
+			default: this with a newly generated keypair for better security.
+			default:
+			default: Inserting generated public key within guest...
+			default: Removing insecure key from the guest if it's present...
+			default: Key inserted! Disconnecting and reconnecting using new SSH key...
+			==> default: Machine booted and ready!
+			
+	- > vagrant halt
+			==> default: Attempting graceful shutdown of VM...
 	--------------------------------------------------------------------------------------	
 	
-5. Ознакомьтесь с графическим интерфейсом VirtualBox, посмотрите как выглядит виртуальная машина,
+5. Ознакомтесь с графическим интерфейсом VirtualBox, посмотрите как выглядит виртуальная машина,
 	которую создал для вас Vagrant, какие аппаратные ресурсы ей выделены. Какие ресурсы выделены по-умолчанию?
-	- Выполнено 
+	--- Выполнение -----------------------------------------------------------------------
+	RAM:	1024mb
+	CPU:	2
+	HDD:	64 gb
+	Video:	4 mb
 	--------------------------------------------------------------------------------------
 	
 6. Ознакомьтесь с возможностями конфигурации VirtualBox через Vagrantfile: документация.
@@ -58,20 +102,39 @@
 			end
 		end
 	--------------------------------------------------------------------------------------
+	
 7. Команда vagrant ssh из директории, в которой содержится Vagrantfile, позволит вам оказаться внутри
 	виртуальной машины без каких-либо дополнительных настроек. Попрактикуйтесь в выполнении обсуждаемых
 	команд в терминале Ubuntu.
-	- Выполнено
+	--- Выполнение -----------------------------------------------------------------------
+	vagrant ssh
+	Welcome to Ubuntu 20.04.3 LTS (GNU/Linux 5.4.0-91-generic x86_64)
+
+	* Documentation:  https://help.ubuntu.com
+	* Management:     https://landscape.canonical.com
+	* Support:        https://ubuntu.com/advantage
+
+	System information as of Thu 13 Jan 2022 06:33:43 PM UTC
+
+	System load:  1.39               Processes:             123
+	Usage of /:   11.4% of 30.88GB   Users logged in:       0
+	Memory usage: 18%                IPv4 address for eth0: 10.0.2.15
+	Swap usage:   0%
+
+
+	This system is built by the Bento project by Chef Software
+	More information can be found at https://github.com/chef/bento
+	vagrant@vagrant:~$
 	--------------------------------------------------------------------------------------
 	
 8.1 какой переменной можно задать длину журнала history, и на какой строчке manual это описывается?
 	--- Выполнение -----------------------------------------------------------------------
 	man bash
-		/HISTFILESIZE			# Нажал /, написал, что ищу HISTFILESIZE
+		/HISTFILESIZE			# Нажал '/', написал, что ищу HISTFILESIZE
 		-N						# Включил нумерацию строк
 		859		HISTFILESIZE	# Номер строки
 		
-		/HISTSIZE				# Нажал /, написал, что ищу HISTSIZE
+		/HISTSIZE				# Нажал '/', написал, что ищу HISTSIZE
 		875		HISTSIZE		# Номер строки
 	--------------------------------------------------------------------------------------
 	
@@ -89,13 +152,16 @@
 
 9. В каких сценариях использования применимы скобки {} и на какой строчке man bash это описано?
 	--- Выполнение -----------------------------------------------------------------------
+	
+	{} - зарезервированные символы, использующиеся для автоматизации.
+	
 	Строка 179:	! case  coproc  do done elif else esac fi for function if in select then until while { } time [[ ]]
 	
 	А вообще, фигурные скобки на англ. называются brace. Впервые это слово в man bash встречается на строчке 407:
 	"...If the function reserved word is used, but the parentheses are not supplied, the braces are required."
 
 	Вот здесь хорошо написано про brace: http://rus-linux.net/lib.php?name=/MyLDP/consol/brace-ru.html
-	Разместил статью в отдельном файле: brace.note
+	Разместил эту статью в отдельном файле на github: brace.note
 	--------------------------------------------------------------------------------------
 	
 10. Как создать однократным вызовом touch 100000 файлов?
@@ -115,7 +181,7 @@
 	Хорошая статья по команде touch нашлась тут:
 	https://omgubuntu.ru/15-polieznykh-primierov-ispolzovaniia-komandy-touch-v-sistiemakh-linux/
 	
-	Разместил её в файле touch.docx
+	Разместил её в файле на github: touch.docx
 	--------------------------------------------------------------------------------------
 		
 11. В man bash поищите по /\[\[. Что делает конструкция [[ -d /tmp ]]
@@ -124,8 +190,8 @@
 
 	Гуглим. Есть статья https://www.opennet.ru/docs/RUS/bash_scripting_guide/c2171.html
 	Тут есть про разные скобки. Копию статьи скинул в файл: skobki.docx
-
-	Нашёл статью по основам bash (https://habr.com/ru/post/47163/). Стало немного понятнее.
+	
+	Нашёл статью по основам bash (https://habr.com/ru/post/47163/), эдесь тоже про скобки.
 
 	Конструкция [[ -d /tmp ]] проверяет наличие каталога /tmp и возвращает 0 или 1
 
@@ -171,5 +237,5 @@
                the invocation of atd.
 	--------------------------------------------------------------------------------------
 
-Хорошее описание тут: https://codepre.com/ru/how-to-use-at-and-batch-on-linux-to-schedule-commands.html
-Вынес в файл: shcedule.docx
+	Хорошее описание тут: https://codepre.com/ru/how-to-use-at-and-batch-on-linux-to-schedule-commands.html
+	Вынес в файл  на github: shcedule.docx
