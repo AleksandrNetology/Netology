@@ -171,12 +171,11 @@
 		или
 		
 	2. vagrant@netology:~$ grep sse /proc/cpuinfo
-	
-		-===-
-		flags           : fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge mca cmov pat pse36 clflush mmx fxsr
-		sse sse2 ht syscall nx rdtscp lm constant_tsc rep_good nopl xtopology nonstop_tsc cpuid tsc_known_freq pni
-		ssse3 cx16 pcid sse4_1 sse4_2 hypervisor lahf_lm pti fsgsbase md_clear flush_l1d arch_capabilities
-		-===-
+	...
+	flags           : fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge mca cmov pat pse36 clflush mmx fxsr
+	sse sse2 ht syscall nx rdtscp lm constant_tsc rep_good nopl xtopology nonstop_tsc cpuid tsc_known_freq pni
+	ssse3 cx16 pcid sse4_1 sse4_2 hypervisor lahf_lm pti fsgsbase md_clear flush_l1d arch_capabilities
+	...
 
 __Ответ: cтаршая версия набора инструкций SSE: sse4_2	
 	--------------------------------------------------------------------------------------
@@ -191,7 +190,8 @@ __Ответ: cтаршая версия набора инструкций SSE: 
 
 	--- Выполнение -----------------------------------------------------------------------
 	Прочитал здесь: https://unix.stackexchange.com/questions/48527/ssh-inside-ssh-fails-with-stdin-is-not-a-tty
-	Цитата: "По умолчанию, когда вы запускаете команду на удаленном компьютере с помощью ssh, для удаленного сеанса не создаётся TTY..."
+	Цитата: "По умолчанию, когда вы запускаете команду на удаленном компьютере с помощью ssh,
+		 для удаленного сеанса не создаётся TTY..."
 	
 	Однако, если использовать ключ `-t`, то всё получится:
 	-===-
@@ -243,14 +243,16 @@ __Ответ: cтаршая версия набора инструкций SSE: 
 ***
 # Примечания.
 	
-	Отличная статья по теме устройства и работы с потоками ввода\вывода терминала тут: https://selectel.ru/blog/tutorials/linux-redirection/
-	А вот здесь есть очень хорошие примеры перенаправлений: https://habr.com/ru/company/ruvds/blog/336320/
-								https://losst.ru/perenapravlenie-vvoda-vyvoda-linux
+Отличная статья по теме устройства и работы с потоками ввода\вывода терминала тут: https://selectel.ru/blog/tutorials/linux-redirection/
+А вот здесь есть очень хорошие примеры перенаправлений: https://habr.com/ru/company/ruvds/blog/336320/
+							https://losst.ru/perenapravlenie-vvoda-vyvoda-linux
+							
 	В лекции эта часть рассказана мутно и невнятно, в статье - идеально: понятно, наглядно, с определениями и кучей нюансов.
 	Вынес в файл redirections.docx на github.
-	---
-	Ссылка на статью про файловые дескрипторы с примерами: https://habr.com/ru/post/471038/
-	---
-	Всё про утилиту screen: https://losst.ru/komanda-screen-linux
-	---
-	Прекрасная статья про tee: https://losst.ru/komanda-tee-linux
+
+Ссылка на статью про файловые дескрипторы с примерами: https://habr.com/ru/post/471038/
+
+Всё про утилиту `screen`: https://losst.ru/komanda-screen-linux
+Помним, что у скрин есть хорошая альтернатива - `tmux`: https://losst.ru/shpargalka-po-tmux
+
+Прекрасная статья про `tee`: https://losst.ru/komanda-tee-linux
