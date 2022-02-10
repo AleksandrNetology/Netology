@@ -20,8 +20,8 @@
 	--------------------------------------------------------------------------------------
 	
 >2. Какая альтернатива без `pipe` команде `grep <some_string> <some_file> | wc -l`?
->man grep поможет в ответе на этот вопрос.
->Ознакомьтесь с документом о других подобных некорректных вариантах использования pipe: http://www.smallo.ruhr.de/award.html
+	man grep поможет в ответе на этот вопрос.
+	[Ознакомьтесь с документом о других подобных некорректных вариантах использования pipe](http://www.smallo.ruhr.de/award.html)
 	
 	--- Выполнение -----------------------------------------------------------------------
 	С использованием pipe:  		vagrant@netology:~$ grep if .bashrc | wc -l 
@@ -63,7 +63,7 @@
 	5 - cinque
 	vagrant@netology:~$ cat test/summ.txt 			# Смотрим содержимое результирующего файла
 	undici - 11
-	vagrant@netology:~$ cat <test/f1.txt >test/summ.txt	# Выполнение поставленной задачи
+	vagrant@netology:~$ cat <test/f1.txt >>test/summ.txt	# Выполнение поставленной задачи
 	vagrant@netology:~$ cat test/summ.txt 			# Проверяем содержимое результирующего файла
 	undici - 11
 	1 - uno
