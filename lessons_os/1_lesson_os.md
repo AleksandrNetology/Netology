@@ -191,14 +191,15 @@ __fork/clone наследование__\
 
 Пример:
 ```sh
-vagrant@vagrant:~$ ps aux | grep defunct 													#Ищем зомби-процесс
-vagrant     1170  0.0  0.0      0     0 pts/1    Z+   17:25   0:00 [reptyr] <defunct>		#Вот он, обозначен Z+, PID=1170
+vagrant@vagrant:~$ ps aux | grep defunct 						#---Ищем зомби-процесс
+vagrant     1170  0.0  0.0      0     0 pts/1    Z+   17:25   0:00 [reptyr] <defunct>	#---Вот он, обозначен Z+, PID=1170
 vagrant     1261  0.0  0.0   6432   672 pts/0    S+   17:31   0:00 grep --color=auto defunct
-vagrant@vagrant:~$ ps -xal | grep defunct													#Ищем родителя нашего зомби. Это процесс 1169
+vagrant@vagrant:~$ ps -xal | grep defunct						#---Ищем родителя нашего зомби.
+											#---Это процесс 1169
 1  1000    1170    1169  20   0      0     0 -      Z+   pts/1      0:00 [reptyr] <defunct>
 0  1000    1263    1217  20   0   6432   740 pipe_w S+   pts/0      0:00 grep --color=auto defunct
-vagrant@vagrant:~$ kill 1169																#Убиваем родительский процесс
-vagrant@vagrant:~$ ps aux | grep defunct													#Проверяем, что зомби-процесс пропал.
+vagrant@vagrant:~$ kill 1169								#---Убиваем родительский процесс
+vagrant@vagrant:~$ ps aux | grep defunct						#---Проверяем, что зомби-процесс пропал.
 vagrant     1265  0.0  0.0   6432   672 pts/0    S+   17:32   0:00 grep --color=auto defunct
 ```
 
