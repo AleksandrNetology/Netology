@@ -2,7 +2,7 @@
 
 #### Оценка потребления ресурсов
 
-Хорошая статья на тему оценки производительности [здесь](https://netflixtechblog.com/linux-performance-analysis-in-60-000-milliseconds-accc10403c55).
+Хорошая статья на тему оценки производительности __[здесь](https://netflixtechblog.com/linux-performance-analysis-in-60-000-milliseconds-accc10403c55).__
 
 Краткая выдержка из неё по командам:
 
@@ -101,7 +101,7 @@
 %usr - утилизация CPU в `userspace`;\
 %system - утилизация CPU в `kernelspace`. Здесь значение больше, если процесс занят вводом\выводом, т.е. чаще работаю системные вызовы;
 
-Как обычно, больше информации в `man` или [посмотреть тут](https://bloglinux.ru/1972-utilita-pidstat-v-unix-linux.html).
+Как обычно, больше информации в `man` или __[посмотреть тут](https://bloglinux.ru/1972-utilita-pidstat-v-unix-linux.html).__
 
 
 
