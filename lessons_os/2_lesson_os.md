@@ -133,6 +133,8 @@
 total = used + free + buff/cache. Помня, что раздел buff/cache может быть _почти_ полностью освобождён, можно считать,
 что свободной памяти у нас free + buff/cache.\
 available - это free + buff/cache минус то, что невозможно освободить в разделе free + buff/cache.
+
+
 ----
 
 
