@@ -178,3 +178,5 @@ available - это free + buff/cache минус то, что невозможн�
 
 
 
+#### Примечания.
+Описание утилиты `sar` [в этой статье](https://linux-notes.org/sar-dlya-monitoringa-proizvoditel-nosti-sistemy/)
