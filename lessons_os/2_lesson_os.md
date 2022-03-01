@@ -372,7 +372,41 @@ available - это free + buff/cache минус то, что невозможн�
 
 Однако, настройки ядра можно менять и во время его работы. Для этого существует команда `sysctl`.
 
->
+>`sysctl -a` - вывод всех возможных параметров ядра
+
+>`sysctl -w <param>` - изменить параметр.
+
+Пример:
+
+	vagrant@vagrant:~$ sudo sysctl -a | grep 'v4.ip_forward'
+	net.ipv4.ip_forward = 0
+	net.ipv4.ip_forward_update_priority = 1
+	net.ipv4.ip_forward_use_pmtu = 0
+	vagrant@vagrant:~$ sudo sysctl -w net.ipv4.ip_forward=1
+	net.ipv4.ip_forward = 1
+	vagrant@vagrant:~$ sysctl net.ipv4.ip_forward
+	net.ipv4.ip_forward = 1
+	vagrant@vagrant:~$
+
+
+Внесенные таким образом изменения не сохранятся после перезагрузки. Чтобы сделать их постоянными, присутствует каталог /etc/sysctl.d.\
+В дистрибутивах обычно ряд настроек заданы отличными от стандартных, поэтому ознакомьтесь с имеющимися там параметрами до внесения своих.
+
+```sh
+vagrant@vagrant:~$ sudo grep -v '^#' /etc/sysctl.d/* | grep = | column -t | head -n2
+/etc/sysctl.d/10-console-messages.conf:kernel.printk                      =  4      4  1  7
+/etc/sysctl.d/10-ipv6-privacy.conf:net.ipv6.conf.all.use_tempaddr         =  2
+```
+
+Список файлов конфигурации с параметрами загрузки ядра:
+```sh
+vagrant@vagrant:~$ ls /etc/sysctl.d/
+10-console-messages.conf  10-kernel-hardening.conf   10-magic-sysrq.conf       10-ptrace.conf    99-sysctl.conf
+10-ipv6-privacy.conf      10-link-restrictions.conf  10-network-security.conf  10-zeropage.conf  README.sysctl
+```
+
+
+
 
 #### Система инициализации: systemd
 
@@ -380,3 +414,5 @@ available - это free + buff/cache минус то, что невозможн�
 
 #### Примечания.
 Описание утилиты `sar` [в этой статье](https://linux-notes.org/sar-dlya-monitoringa-proizvoditel-nosti-sistemy/)
+
+Описание параметров ядра: [The kernel’s command-line parameters](https://www.kernel.org/doc/html/latest/admin-guide/kernel-parameters.html)
