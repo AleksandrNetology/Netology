@@ -517,20 +517,20 @@ __Linux Control Cgroups__ - обеспечивает изоляцию проце
 
 Список cgroup контроллеров:
 ```sh
-#subsys_name	hierarchy	num_cgroups		enabled
-cpuset			12			1				1
-cpu				8			30				1
-cpuacct			8			30				1
-blkio			4			30				1
-memory			9			64				1
-devices			3			30				1
-freezer			7			1				1
-net_cls			5			1				1
-perf_event		2			1				1
-net_prio		5			1				1
-hugetlb			6			1				1
-pids			11			35				1
-rdma			10			1				1
+#subsys_name	hierarchy	num_cgroups	enabled
+cpuset		12		1		1
+cpu		8		30		1
+cpuacct		8		30		1
+blkio		4		30		1
+memory		9		64		1
+devices		3		30		1
+freezer		7		1		1
+net_cls		5		1		1
+perf_event	2		1		1
+net_prio	5		1		1
+hugetlb		6		1		1
+pids		11		35		1
+rdma		10		1		1
 ```
 
 #### Примечания.
