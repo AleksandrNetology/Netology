@@ -540,17 +540,17 @@ rdma			10			1				1
 Статья __"[Работаем с модулями ядра в Linux](https://habr.com/ru/post/117654/)"__\
 Статья __"[Модули ядра Linux](https://losst.ru/moduli-yadra-linux)"__
 
-[Control Groups](https://www.kernel.org/doc/html/latest/admin-guide/cgroup-v1/cgroups.html)
+__[Control Groups](https://www.kernel.org/doc/html/latest/admin-guide/cgroup-v1/cgroups.html)__
 
 ----
 Книги на английском по анализу производительности:
 
-Сайт и книги [Brendan Gregg](http://www.brendangregg.com/overview.html), в частности:
-● [The USE Method](http://www.brendangregg.com/usemethod.html)
-● [Performance Analysis Methodology](https://brendangregg.com/methodology.html)
-● [«Systems Performance: Enterprise and the Cloud, 2nd Edition (2020)»](https://brendangregg.com/systems-performance-2nd-edition-book.html)
+Сайт и книги [Brendan Gregg](http://www.brendangregg.com/overview.html), в частности:\
+● [The USE Method](http://www.brendangregg.com/usemethod.html)\
+● [Performance Analysis Methodology](https://brendangregg.com/methodology.html)\
+● [«Systems Performance: Enterprise and the Cloud, 2nd Edition (2020)»](https://brendangregg.com/systems-performance-2nd-edition-book.html)\
 ● [Linux Performance](https://www.brendangregg.com/linuxperf.html)
 
-Пример быстрого интерактивного анализа хоста на практике:
+Пример быстрого интерактивного анализа хоста на практике:\
 ● [Linux Performance Analysis in 60,000 Milliseconds](https://netflixtechblog.com/linux-performance-analysis-in-60-000-milliseconds-accc10403c55)
 
