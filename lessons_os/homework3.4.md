@@ -1,13 +1,51 @@
 ### Домашнее задание к занятию "3.4. Операционные системы, лекция 2"
 
 
-1. На лекции мы познакомились с [node_exporter](https://github.com/prometheus/node_exporter/releases). В демонстрации его исполняемый файл запускался в background. Этого достаточно для демо, но не для настоящей production-системы, где процессы должны находиться под внешним управлением. Используя знания из лекции по `systemd`, создайте самостоятельно простой [unit-файл](https://www.freedesktop.org/software/systemd/man/systemd.service.html) для `node_exporter`:
+1. На лекции мы познакомились с [node_exporter](https://github.com/prometheus/node_exporter/releases). В демонстрации его исполняемый файл запускался в background.
+Этого достаточно для демо, но не для настоящей production-системы, где процессы должны находиться под внешним управлением. Используя знания из лекции по `systemd`,
+создайте самостоятельно простой [unit-файл](https://www.freedesktop.org/software/systemd/man/systemd.service.html) для `node_exporter`:
 
 - поместите его в автозагрузку,
 - предусмотрите возможность добавления опций к запускаемому процессу через внешний файл (посмотрите, например, на `systemctl cat cron`),
 - удостоверьтесь, что с помощью `systemctl` процесс корректно стартует, завершается, а после перезагрузки автоматически поднимается.
 
 ----
+
+Скачиваем node_exporter:
+```sh
+vagrant@vagrant:~/tmp$ wget https://github.com/prometheus/node_exporter/releases/download/v1.3.1/node_exporter-1.3.1.darwin-amd64.tar.gz
+```
+Распаковываем:
+```sh
+vagrant@vagrant:~/tmp$ tar -zxpvf node_exporter-1.3.1.darwin-amd64.tar.gz
+```
+Копируем исполняемый файл в `/usr/local/bin`, иначе надо прописывать путь в переменной $PATH:
+```sh
+vagrant@vagrant:~$ sudo cp tmp/node_exporter-1.3.1.darwin-amd64/node_exporter /usr/local/bin
+```
+Создаем Systemd Unit:
+```sh
+
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 ----
 
