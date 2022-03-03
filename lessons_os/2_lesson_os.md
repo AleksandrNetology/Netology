@@ -509,8 +509,29 @@ root          28  0.0  0.4   9836  4168 pts/0    S    07:38   0:00 -bash
 root          37  0.0  0.3  11476  3396 pts/0    R+   07:38   0:00 ps aux
 ```
 
+#####  Linux Control Cgroups
 
+__Linux Control Cgroups__ - обеспечивает изоляцию процессов в плане потребления ресурсов. В частности, можно ограничить потребление\
+памяти и процессора для группы процессов.\
+Управляется также как `procfs` через работу с файлами в специальной файловой системе `cgroup` (обычно монтируется в /sys/fs/cgroup).
 
+Список cgroup контроллеров:
+```sh
+#subsys_name	hierarchy	num_cgroups		enabled
+cpuset			12			1				1
+cpu				8			30				1
+cpuacct			8			30				1
+blkio			4			30				1
+memory			9			64				1
+devices			3			30				1
+freezer			7			1				1
+net_cls			5			1				1
+perf_event		2			1				1
+net_prio		5			1				1
+hugetlb			6			1				1
+pids			11			35				1
+rdma			10			1				1
+```
 
 #### Примечания.
 Описание утилиты `sar` [в этой статье](https://linux-notes.org/sar-dlya-monitoringa-proizvoditel-nosti-sistemy/)
@@ -518,4 +539,18 @@ root          37  0.0  0.3  11476  3396 pts/0    R+   07:38   0:00 ps aux
 Описание параметров ядра: __[The kernel’s command-line parameters](https://www.kernel.org/doc/html/latest/admin-guide/kernel-parameters.html)__\
 Статья __"[Работаем с модулями ядра в Linux](https://habr.com/ru/post/117654/)"__\
 Статья __"[Модули ядра Linux](https://losst.ru/moduli-yadra-linux)"__
+
+[Control Groups](https://www.kernel.org/doc/html/latest/admin-guide/cgroup-v1/cgroups.html)
+
+----
+Книги на английском по анализу производительности:
+
+Сайт и книги [Brendan Gregg](http://www.brendangregg.com/overview.html), в частности:
+● [The USE Method](http://www.brendangregg.com/usemethod.html)
+● [Performance Analysis Methodology](https://brendangregg.com/methodology.html)
+● [«Systems Performance: Enterprise and the Cloud, 2nd Edition (2020)»](https://brendangregg.com/systems-performance-2nd-edition-book.html)
+● [Linux Performance](https://www.brendangregg.com/linuxperf.html)
+
+Пример быстрого интерактивного анализа хоста на практике:
+● [Linux Performance Analysis in 60,000 Milliseconds](https://netflixtechblog.com/linux-performance-analysis-in-60-000-milliseconds-accc10403c55)
 
