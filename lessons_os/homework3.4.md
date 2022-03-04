@@ -25,9 +25,38 @@ vagrant@vagrant:~$ sudo cp tmp/node_exporter-1.3.1.darwin-amd64/node_exporter /u
 ```
 Создаем Systemd Unit:
 ```sh
+vagrant@vagrant:~$ sudo nano /etc/systemd/system/node_exporter.service
 
+	[Unit]
+	Description=Prometheus Node Exporter
+	Wants=network-online.target
+	After=network-online.target
+
+	[Service]
+	User=node_exporter
+	Group=node_exporter
+	Type=simple
+	ExecStart=/usr/local/bin/node_exporter
+
+	[Install]
+	WantedBy=multi-user.target
 ```
+Добавляем сервис в автозагрузку, запускаем его, проверяем статус:
+```sh
+vagrant@vagrant:~$ sudo systemctl daemon-reload
+vagrant@vagrant:~$ sudo systemctl enable --now node_exporter
+Created symlink /etc/systemd/system/multi-user.target.wants/node_exporter.service → /etc/systemd/system/node_exporter.service.
+vagrant@vagrant:~$ sudo systemctl status node_exporter
+● node_exporter.service - Node Exporter
+     Loaded: loaded (/etc/systemd/system/node_exporter.service; enabled; vendor preset: enabled)
+     Active: failed (Result: exit-code) since Fri 2022-03-04 09:04:41 UTC; 11s ago
+    Process: 4884 ExecStart=/usr/local/bin/node_exporter (code=exited, status=217/USER)
+   Main PID: 4884 (code=exited, status=217/USER)
 
+Mar 04 09:04:41 vagrant systemd[1]: Started Node Exporter.
+Mar 04 09:04:41 vagrant systemd[1]: node_exporter.service: Main process exited, code=exited, status=217/USER
+Mar 04 09:04:41 vagrant systemd[1]: node_exporter.service: Failed with result 'exit-code'.
+```
 
 
 
