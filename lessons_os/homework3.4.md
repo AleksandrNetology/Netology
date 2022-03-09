@@ -1,7 +1,7 @@
 ### Домашнее задание к занятию "3.4. Операционные системы, лекция 2"
 
 
-1. На лекции мы познакомились с [node_exporter](https://github.com/prometheus/node_exporter/releases). В демонстрации его исполняемый файл запускался в background.
+>1. На лекции мы познакомились с [node_exporter](https://github.com/prometheus/node_exporter/releases). В демонстрации его исполняемый файл запускался в background.
 Этого достаточно для демо, но не для настоящей production-системы, где процессы должны находиться под внешним управлением. Используя знания из лекции по `systemd`,
 создайте самостоятельно простой [unit-файл](https://www.freedesktop.org/software/systemd/man/systemd.service.html) для `node_exporter`:
 
@@ -9,21 +9,11 @@
 - предусмотрите возможность добавления опций к запускаемому процессу через внешний файл (посмотрите, например, на `systemctl cat cron`),
 - удостоверьтесь, что с помощью `systemctl` процесс корректно стартует, завершается, а после перезагрузки автоматически поднимается.
 
+=Выполнение=
 ----
+
 [Пример](https://itdraft.ru/2020/11/02/ustanovka-node-exporter-s-avtorizacziej-i-podklyuchenie-k-prometheus-v-centos-8/)
-<<<<<<< HEAD
-Скачиваем node_exporter:
-```sh
-vagrant@vagrant:~/tmp$ wget https://github.com/prometheus/node_exporter/releases/download/v1.3.1/node_exporter-1.3.1.darwin-amd64.tar.gz
-```
-Распаковываем:
-```sh
-vagrant@vagrant:~/tmp$ tar -zxpvf node_exporter-1.3.1.darwin-amd64.tar.gz
-```
-Копируем исполняемый файл в `/usr/local/bin`, иначе надо прописывать путь в переменной $PATH:
-```sh
-vagrant@vagrant:~$ sudo cp tmp/node_exporter-1.3.1.darwin-amd64/node_exporter /usr/local/bin
-=======
+
 Скачиваем node_exporter, причём нам нужна версия node_exporter-1.3.1.__linux__-amd64, иначе эта хрень не заработает:
 ```sh
 vagrant@vagrant:~/tmp$ wget https://github.com/prometheus/node_exporter/releases/download/v1.3.1/node_exporter-1.3.1.linux-amd64.tar.gz
@@ -32,10 +22,10 @@ vagrant@vagrant:~/tmp$ wget https://github.com/prometheus/node_exporter/releases
 ```sh
 vagrant@vagrant:~/tmp$ tar -zxpvf node_exporter-1.3.1.linux-amd64
 ```
-Копируем исполняемый файл в `/usr/local/bin`, иначе надо прописывать путь в переменной $PATH:
+Копируем исполняемый файл в `/usr/local/bin`:
 ```sh
 vagrant@vagrant:~$ sudo cp tmp/node_exporter-1.3.1.linux-amd64/node_exporter /usr/local/bin
->>>>>>> d7c61ff442aa63e58a49efef5526e51e7acfb64e
+
 ```
 Создаем Systemd Unit:
 ```sh
@@ -89,7 +79,7 @@ tcp     LISTEN   0        4096                    *:9100                *:*     
 ![](port9100-9191.jpg)
 
 
-Подключаемся и проверяем:
+Подключаемся с хоста и проверяем:
 
 ![](metrics.jpg)
 
@@ -100,11 +90,18 @@ vagrant@vagrant:~$ curl -s http://localhost:9100/metrics
 
 Удостоверился, что процесс корректно стартует, завершается, а после перезагрузки автоматически поднимается.
 
+=Выполнено=
 ----
 
-2. Ознакомьтесь с опциями `node_exporter` и выводом `/metrics` по-умолчанию. Приведите несколько опций, которые вы бы выбрали для базового мониторинга хоста по CPU, памяти, диску и сети.
 
+
+>2. Ознакомьтесь с опциями `node_exporter` и выводом `/metrics` по-умолчанию. Приведите несколько опций, которые вы бы выбрали для базового мониторинга хоста по CPU, памяти, диску и сети.
+
+=Выполнение=
 ----
+
+Наиболее подходящие на мой взгляд метрики:
+
 ```sh
 [CPU]
 node_cpu_seconds_total{cpu="1",mode="system"} 9.51
@@ -132,9 +129,11 @@ node_disk_read_bytes_total{device="sda"} 2.89396736e+08
 node_disk_read_time_seconds_total{device="sda"} 50.045
 node_disk_write_time_seconds_total{device="sda"} 13.19
 ```
+=Выполнено=
 ----
 
-3. Установите в свою виртуальную машину [Netdata](https://github.com/netdata/netdata). Воспользуйтесь [готовыми пакетами](https://packagecloud.io/netdata/netdata/install) для установки (`sudo apt install -y netdata`).\
+
+>3. Установите в свою виртуальную машину [Netdata](https://github.com/netdata/netdata). Воспользуйтесь [готовыми пакетами](https://packagecloud.io/netdata/netdata/install) для установки (`sudo apt install -y netdata`).\
 	После успешной установки:
 
 - в конфигурационном файле `/etc/netdata/netdata.conf` в секции `[web]` замените значение с `localhost` на `bind to = 0.0.0.0`,
@@ -149,8 +148,8 @@ config.vm.network "forwarded_port", guest: 19999, host: 19999
 
 ----
 
-4. Можно ли по выводу `dmesg` понять, осознает ли ОС, что загружена не на настоящем оборудовании, а на системе виртуализации?
 
+>4. Можно ли по выводу `dmesg` понять, осознает ли ОС, что загружена не на настоящем оборудовании, а на системе виртуализации?
 ----
 
 >Осознание является формой психической активности и элементом высшей нервной деятельности, основой которой является головной мозг.
@@ -159,23 +158,25 @@ config.vm.network "forwarded_port", guest: 19999, host: 19999
 Более того, на текущий момент человечество не смогло создать полноценного разума, способного себя осознать.\
 __По этой причине, вопрос абсолютно не корректен.__
 
-Однако, если __человек__ посмотрим на вывод `dmesg`, то __ему__ станет понятно, что эта ОС выполняется в виртуальной среде.
+Однако, если __человек__ посмотрим на вывод `dmesg`, то __человеку станет понятно__, что эта ОС выполняется в виртуальной среде.
 ```sh
 vagrant@vagrant:~$ dmesg -T | grep virtual
 [Mon Mar  7 19:11:15 2022] CPU MTRRs all blank - virtualized system.
 [Mon Mar  7 19:11:15 2022] Booting paravirtualized kernel on KVM
 [Mon Mar  7 19:11:29 2022] systemd[1]: Detected virtualization oracle.
 ```
+__Выполнено__
+----
+
+
+>5. Как настроен `sysctl` `fs.nr_open` на системе по-умолчанию? Узнайте, что означает этот параметр. Какой другой существующий лимит не позволит достичь такого числа (`ulimit --help`)?
 
 ----
 
-5. Как настроен `sysctl` `fs.nr_open` на системе по-умолчанию? Узнайте, что означает этот параметр. Какой другой существующий лимит не позволит достичь такого числа (`ulimit --help`)?
-
 ----
 
-----
 
-6. Запустите любой долгоживущий процесс (не `ls`, который отработает мгновенно, а, например, `sleep 1h`) в отдельном неймспейсе процессов;
+>6. Запустите любой долгоживущий процесс (не `ls`, который отработает мгновенно, а, например, `sleep 1h`) в отдельном неймспейсе процессов;
 	покажите, что ваш процесс работает под `PID 1` через `nsenter`. Для простоты работайте в данном задании под __root__ (`sudo -i`).
 	Под обычным пользователем требуются дополнительные опции (`--map-root-user`) и т.д.
 
@@ -183,7 +184,7 @@ vagrant@vagrant:~$ dmesg -T | grep virtual
 
 ----
 
-7. Найдите информацию о том, что такое `:(){ :|:& };:`.\
+>7. Найдите информацию о том, что такое `:(){ :|:& };:`.\
 	Запустите эту команду в своей виртуальной машине Vagrant с Ubuntu 20.04 (__это важно, поведение в других ОС не проверялось__).\
 	Некоторое время все будет "плохо", после чего (минуты) – ОС должна стабилизироваться.\
 	Вызов `dmesg` расскажет, какой механизм помог автоматической стабилизации.\
