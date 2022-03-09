@@ -513,7 +513,8 @@ root      237935  0.0  0.3   9836  4012 pts/3  S+   07:30   0:00   \_ /bin/bash
 Имея привилегии, можно “зайти” в этот namespace с хоста:
 ```sh
 root@netology1:~# nsenter --target 237935 --pid --mount
-root@netology1:/# ps auxUSER         PID %CPU %MEM    VSZ   RSS TTY      STAT START   TIME COMMAND
+root@netology1:/# ps aux
+USER         PID %CPU %MEM    VSZ   RSS TTY      STAT START   TIME COMMAND
 root           1  0.0  0.3   9836  4012 pts/3    S+   07:30   0:00 /bin/bash
 root          28  0.0  0.4   9836  4168 pts/0    S    07:38   0:00 -bash
 root          37  0.0  0.3  11476  3396 pts/0    R+   07:38   0:00 ps aux
