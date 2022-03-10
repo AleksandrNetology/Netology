@@ -1,4 +1,4 @@
-## Домашнее задание к занятию "3.3. Операционные системы, лекция 1"
+## Домашнее задание 3.3. Операционные системы, лекция 1
 
 >1. Какой системный вызов делает команда `cd`? В прошлом ДЗ мы выяснили, что `cd` не является самостоятельной  программой,
 	это `shell builtin`, поэтому запустить `strace` непосредственно на `cd` не получится. Тем не менее, вы можете запустить
@@ -51,44 +51,39 @@ __Ответ: /etc/magic.mgc__
 	
 __Выполнение__
 
+Создаём пустой файл:
 ```sh
-vagrant@vagrant:~$ ll tmp/
-total 16
-drwxrwxr-x 2 vagrant vagrant 4096 Feb 14 18:44 ./
-drwxr-xr-x 7 vagrant vagrant 4096 Feb 12 23:55 ../
--rw-rw-r-- 1 vagrant vagrant    0 Feb 14 18:44 det.log			# пустой файл для логов
-vagrant@vagrant:~$ while true; do date +%s >> tmp/det.log; done &	# запускаем наш эмулятор записи логов
-[1] 1027								# его PID
-vagrant@vagrant:~$ renice -n 19 1027					# понижаем приоритет
-1027 (process ID) old priority 0, new priority 19
-vagrant@vagrant:~$ jobs -l						# проверяем, что всё работает
-[1]+  1027 Running                 while true; do
-    date +%s >> tmp/det.log;
-done &
-vagrant@vagrant:~$ ll tmp/
-total 1272
-drwxrwxr-x 2 vagrant vagrant    4096 Feb 14 18:44 ./
-drwxr-xr-x 7 vagrant vagrant    4096 Feb 12 23:55 ../
--rw-rw-r-- 1 vagrant vagrant 1285537 Feb 14 18:49 det.log		# проверяем,что файл наполняется
-
-vagrant@vagrant:~$ tmux attach-session -t 0				# отправляемся в сессию tmux, где открываем tmp/det.log
-vagrant@vagrant:~$ nano tmp/det.log					# вот, собственно, открыли
-vagrant@vagrant:~$ ps aux | grep vagrant				# возвращаемся из tmux и проверяем, что всё работает
-.....
-vagrant   459626  0.0  0.3  14500 11380 pts/1    S+   19:03   0:00 nano tmp/det.log	# вот он, открыт, да ещё и лог в него пишется одновременно
-....
-vagrant@vagrant:~$ lsof | grep det.log					# и вот тут охренительные новости! Оказывается tmp/det.log никем не открыт.
-vagrant@vagrant:~$ 							# как такое возможно?
-vagrant@vagrant:~$ ll tmp/
-total 4300
-drwxrwxr-x 2 vagrant vagrant    4096 Feb 14 19:03 ./
-drwxr-xr-x 7 vagrant vagrant    4096 Feb 12 23:55 ../
--rw-rw-r-- 1 vagrant vagrant 4376977 Feb 14 19:12 det.log		# он продолжает пополняться
--rw-rw-r-- 1 vagrant vagrant    1024 Feb 14 19:03 .det.log.swp		# он открыт, но не открыт????????? КАК????
-...
+vagrant@vagrant:~$ touch tmp/ping.log
+vagrant@vagrant:~$ ll tmp/*.log
+-rw-rw-r-- 1 vagrant vagrant 0 Mar 10 19:33 tmp/ping.log
 ```
-__Я даже воспроизвести это не смог. Извините.__\
-Мне нужны объяснения. Я не понимаю, что происходит!
+Запускаем `tmux` с циклом:
+```sh
+vagrant@vagrant:~$ while true; do ping 8.8.8.8 >> tmp/ping.log; sleep 1s; done &
+[1] 1435
+vagrant@vagrant:~$ pstree -p
+...
+           ├─tmux: server(1413)─┬─bash(1414)─┬─bash(1435)───ping(1436)
+           │                    │            └─pstree(1456)
+...
+vagrant@vagrant:~$ lsof | grep /tmp
+tmux:\x20 1413                       vagrant    5u     unix 0x0000000000000000      0t0      32293 /tmp/tmux-1000/default type=STREAM
+tmux:\x20 1413                       vagrant    6u     unix 0x0000000000000000      0t0      32786 /tmp/tmux-1000/default type=STREAM
+vagrant@vagrant:~$ ll tmp/ping.log
+-rw-rw-r-- 1 vagrant vagrant 29577 Mar 10 19:44 tmp/ping.log
+vagrant@vagrant:~$ rm tmp/ping.log
+vagrant@vagrant:~$ ll tmp/ping.log
+ls: cannot access 'tmp/ping.log': No such file or directory
+vagrant@vagrant:~$
+```
+Возвращаемся в базовую консоль:
+```sh
+vagrant@vagrant:~$ ps aux | grep ping
+vagrant     1396  0.1  0.0   7092   936 ?        S    19:31   0:00 ping 8.8.8.8
+vagrant     1436  0.1  0.0   7092   864 pts/2    S    19:36   0:00 ping 8.8.8.8
+vagrant     1440  0.0  0.0   6300   736 pts/0    S+   19:38   0:00 grep --color=auto ping
+vagrant@vagrant:~$
+```
 
 ------
 	

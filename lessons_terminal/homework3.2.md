@@ -1,4 +1,4 @@
-# Домашнее задание 3.2
+# Домашнее задание 3.2. Работа в терминале, лекция 2
 
 >1. Какого типа команда `cd`? Попробуйте объяснить, почему она именно такого типа;
 	опишите ход своих мыслей, если считаете что она могла бы быть другого типа.
@@ -249,89 +249,69 @@ __Выполнение__
 Во-первых, надо исправить значение: kernel.yama.ptrace_scope = 0 в файле `/etc/sysctl.d/10-ptrace.conf`\
 Во-вторых, можно использовать аналог `screen` - программой `tmux`.
 
-```shell
+```sh
 sudo nano /etc/sysctl.d/10-ptrace.conf
 kernel.yama.ptrace_scope = 0
 ```
-Запускаю `tmux`, создаю несколько сессий. Можно было одну, но я хочу несколько. Просто так.\
-Возвращаюсь в начальный терминал.\
-Хочу посмотреть дерево процессов до начала опытов:
+Запускаю `tmux`, создаю пару сессий.\
+В первой сессии: 
 ```sh
-vagrant@vagrant:~$ pstree -p
-
-           ├─sshd(926)───sshd(984)───sshd(1035)───bash(1036)───pstree(1094)
-...
-...
-...
-           ├─tmux: server(1050)─┬─bash(1051)
-           │                    ├─bash(1066)
-           │                    └─bash(1076)
-
-```
-Запускаю бесконечную работу:
-```sh
-vagrant@vagrant:~$ while true; do date +%s >> tmp/det.log; done &
-[1] 1133
-vagrant@vagrant:~$ pstree -p
-...
-           ├─sshd(926)───sshd(984)───sshd(1035)───bash(1036)─┬─bash(1133)
-           │                                                 └─pstree(19648)
-...
-           ├─tmux: server(1050)─┬─bash(1051)
-           │                    ├─bash(1066)
-           │                    └─bash(1076)
-...
-```
-
-Убеждаюсь в успешной работе процесса.
-```
+vagrant@vagrant:~$ htop &
+[1] 1250
 vagrant@vagrant:~$ jobs -l
-[1]+  1133 Running                 while true; do
-    date +%s >> tmp/det.log;
-done &
-vagrant@vagrant:~$ disown  1133		# отключаем процесс оттекущей консоли
-vagrant@vagrant:~$ jobs -l		убеждаемся, что всё получилось
+[1]+  1250 Stopped (tty output)    htop
+vagrant@vagrant:~$ disown 1250
+-bash: warning: deleting stopped job 1 with process group 1250
+vagrant@vagrant:~$ ps
+    PID TTY          TIME CMD
+   1192 pts/5    00:00:00 bash
+   1250 pts/5    00:00:00 htop
+   1251 pts/5    00:00:00 ps
 vagrant@vagrant:~$
 ```
-Переключаемся в сессию tmux:
+Захожу во вторую сессию:
+
+```sh
+vagrant@vagrant:~$ reptyr 1250
 ```
-vagrant@vagrant:~$ jobs -l
+Запускается `htop`.
+
+Однако!
+Процесс ping(1160) перенести с помощью reptyr не получилось. См. ниже.
+```sh
+vagrant@vagrant:~$ pstree -p
+...
+         ├─tmux: server(1068)─┬─bash(1069)───bash(1159)───ping(1160)
+         │                    ├─bash(1121)
+         │                    ├─bash(1131)
+         │                    ├─bash(1143)
+         │                    ├─bash(1192)───htop(1250)───htop(1253)
+         │                    ├─bash(1216)───reptyr(1252)
+...
+```
+
+```sh
 vagrant@vagrant:~$ echo $$
-1076
-vagrant@vagrant:~$ sudo reptyr 1133
-[-] Process 58268 (bash) shares 1033's process group. Unable to attach.
-(This most commonly means that 1033 has suprocesses).
-Unable to attach to pid 1033: Invalid argument
+1121
+vagrant@vagrant:~$ reptyr 1160
+[-] Process 1159 (bash) shares 1160's process group. Unable to attach.
+(This most commonly means that 1160 has suprocesses).
+Unable to attach to pid 1160: Invalid argument
+vagrant@vagrant:~$ reptyr -T 1160
+[-] Unable to find the fd for the pty!
+Unable to attach to pid 1160: No such process
+vagrant@vagrant:~$ ps aux | grep ping
+vagrant     1160  0.1  0.0   7092   932 pts/1    S    18:33   0:04 ping 8.8.8.8
 ```
-На этом эксперимент закочен.
+Получается, что reptyr сработал с утилитой htop, но не сработал с циклами типа:
 
-Как советуют на множестве форумов - попробуйте ключ `-T` и эта ошибка __может быть__ уйдёт. Кому-то помогло, но мне - нет.\
-К сожалению, в моём случае виртуалка практически умирает - почти все ресурсы CPU утилизируются.\
-И в прямом смылсле этого слова тоже.\
-И тут неважно, что использовать: `screen` или `tmux`- волшебный reptyr превратит любой их них в кирпич.
+```sh
+while true; do [что-нибудь] >> [файл]; sleep 1s; done &
 ```
-vagrant@vagrant:~$ top
-top - 16:58:03 up 36 min,  6 users,  load average: 2.04, 1.76, 1.45
-Tasks: 117 total,   3 running, 114 sleeping,   0 stopped,   0 zombie
-%Cpu(s): 66.7 us, 33.3 sy,  0.0 ni,  0.0 id,  0.0 wa,  0.0 hi,  0.0 si,  0.0 st
-MiB Mem :   2992.5 total,   2569.1 free,    169.5 used,    253.9 buff/cache
-MiB Swap:   1962.0 total,   1962.0 free,      0.0 used.   2668.1 avail Mem
-
-   PID USER      PR  NI    VIRT    RES    SHR S  %CPU  %MEM     TIME+ COMMAND
-   9506 vagrant   20   0   10064   6592   3164 R  70.1   0.2  15:44.74 tmux: server
- 154822 root      20   0    2512    720    656 S  18.3   0.0   3:29.20 reptyr
-   1033 vagrant   20   0    7340   2392   1720 S  11.6   0.1   2:53.11 bash
-..........
-```
-
-Спасибо, было не понятно. Даже гугл не помог. В интернете сотни вопросов на эту тему и __ни одного рабочего ответа__.\
-Охренительная утилита. 2 недели потраченного впустую времени.
-
 Вывод:
 ```
-Прежде чем запускать очень важную задачу - проверь, в той ли сессии планируешь запускать.
-Это как зубы по утрам чистить или руки перед едой мыть.
-Если же всё-таки ошибся, то не тупи, перезапускай: помни, всё можно перезапустить, кроме жизни.
+Рептир - это костыль. Прежде чем запускать очень важную задачу - проверь, в той ли сессии планируешь запускать.
+Это как зубы по утрам чистить или руки перед едой мыть. Если же всё-таки ошибся, то не тупи, перезапускай: помни, всё можно перезапустить, кроме жизни.
 ```
 
 --------------------------------------------------------------------------------------
