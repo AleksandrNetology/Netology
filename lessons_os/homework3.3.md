@@ -1,4 +1,4 @@
-## Домашнее задание к занятию "3.3. Операционные системы, лекция 1"
+## Домашнее задание 3.3. Операционные системы, лекция 1
 
 >1. Какой системный вызов делает команда `cd`? В прошлом ДЗ мы выяснили, что `cd` не является самостоятельной  программой,
 	это `shell builtin`, поэтому запустить `strace` непосредственно на `cd` не получится. Тем не менее, вы можете запустить
@@ -52,43 +52,31 @@ __Ответ: /etc/magic.mgc__
 __Выполнение__
 
 ```sh
+vagrant@vagrant:~$ mkdir tmp
+vagrant@vagrant:~$ touch tmp/test.txt
+vagrant@vagrant:~$ echo 'Hello world!' > tmp/test.txt
+vagrant@vagrant:~$ cat tmp/test.txt
+Hello world!
+vagrant@vagrant:~$ ping 8.8.8.8 >> tmp/test.txt &
+[1] 13918
+vagrant@vagrant:~$ ps aux | grep ping
+vagrant    13918  0.0  0.0   7092   936 pts/0    S    14:30   0:00 ping 8.8.8.8
+vagrant    13923  0.0  0.0   6300   736 pts/0    S+   14:31   0:00 grep --color=auto ping
 vagrant@vagrant:~$ ll tmp/
-total 16
-drwxrwxr-x 2 vagrant vagrant 4096 Feb 14 18:44 ./
-drwxr-xr-x 7 vagrant vagrant 4096 Feb 12 23:55 ../
--rw-rw-r-- 1 vagrant vagrant    0 Feb 14 18:44 det.log			# пустой файл для логов
-vagrant@vagrant:~$ while true; do date +%s >> tmp/det.log; done &	# запускаем наш эмулятор записи логов
-[1] 1027								# его PID
-vagrant@vagrant:~$ renice -n 19 1027					# понижаем приоритет
-1027 (process ID) old priority 0, new priority 19
-vagrant@vagrant:~$ jobs -l						# проверяем, что всё работает
-[1]+  1027 Running                 while true; do
-    date +%s >> tmp/det.log;
-done &
-vagrant@vagrant:~$ ll tmp/
-total 1272
-drwxrwxr-x 2 vagrant vagrant    4096 Feb 14 18:44 ./
-drwxr-xr-x 7 vagrant vagrant    4096 Feb 12 23:55 ../
--rw-rw-r-- 1 vagrant vagrant 1285537 Feb 14 18:49 det.log		# проверяем,что файл наполняется
-
-vagrant@vagrant:~$ tmux attach-session -t 0				# отправляемся в сессию tmux, где открываем tmp/det.log
-vagrant@vagrant:~$ nano tmp/det.log					# вот, собственно, открыли
-vagrant@vagrant:~$ ps aux | grep vagrant				# возвращаемся из tmux и проверяем, что всё работает
-.....
-vagrant   459626  0.0  0.3  14500 11380 pts/1    S+   19:03   0:00 nano tmp/det.log	# вот он, открыт, да ещё и лог в него пишется одновременно
-....
-vagrant@vagrant:~$ lsof | grep det.log					# и вот тут охренительные новости! Оказывается tmp/det.log никем не открыт.
-vagrant@vagrant:~$ 							# как такое возможно?
-vagrant@vagrant:~$ ll tmp/
-total 4300
-drwxrwxr-x 2 vagrant vagrant    4096 Feb 14 19:03 ./
-drwxr-xr-x 7 vagrant vagrant    4096 Feb 12 23:55 ../
--rw-rw-r-- 1 vagrant vagrant 4376977 Feb 14 19:12 det.log		# он продолжает пополняться
--rw-rw-r-- 1 vagrant vagrant    1024 Feb 14 19:03 .det.log.swp		# он открыт, но не открыт????????? КАК????
-...
+total 12
+drwxrwxr-x 2 vagrant vagrant 4096 Mar 15 14:29 ./
+drwxr-xr-x 5 vagrant vagrant 4096 Mar 15 14:29 ../
+-rw-rw-r-- 1 vagrant vagrant 3464 Mar 15 14:31 test.txt
+vagrant@vagrant:~$ sudo lsof | grep test
+ping      13918                        vagrant    1w      REG              253,0     4808    1048604 /home/vagrant/tmp/test.txt
+vagrant@vagrant:~$ rm -r tmp/test.txt
+vagrant@vagrant:~$ sudo lsof | grep test
+ping      13918                        vagrant    1w      REG              253,0     7869    1048604 /home/vagrant/tmp/test.txt (deleted)
+vagrant@vagrant:~$ sudo ls -l /proc/13918/fd | grep tmp/test.txt
+l-wx------ 1 root root 64 Mar 15 14:32 1 -> /home/vagrant/tmp/test.txt (deleted)
+vagrant@vagrant:~$ sudo truncate -s 0 /proc/13918/fd/1
+vagrant@vagrant:~$ kill -9 13918
 ```
-__Я даже воспроизвести это не смог. Извините.__\
-Мне нужны объяснения. Я не понимаю, что происходит!
 
 ------
 	
@@ -227,3 +215,9 @@ l    - мультипоточный процесс;
 2. [подробно от автора](http://redsymbol.net/articles/unofficial-bash-strict-mode/).
 
 Про дополнительное обозначение статуса процесса, а именно `l` - [лидер сессии](https://qastack.ru/unix/18166/what-are-session-leaders-in-ps).
+
+Примеры очистки удалённых открыты файлов:
+[__Пример 1__](https://cloudmaker.ru/tutorials/kak-ochistit-diskovoe-prostranstvo-esli-posle-udaleniya-fajla-mesto-na-diske-ne-osvobodilos-interaktivnyj-bash-skript/)
+[__Пример 2__](https://blog.bissquit.com/unix/udalenie-otkrytogo-fajla-v-linux/)
+[__Пример 3: 6 способов__](https://www.kobzarev.com/linux/kak-ochistit-fayl-v-linux/)
+[__Ещё одна статья__](https://santehnika-terra.ru/articles/linux-sposob-obnuleniya-otkrytogo-udalennogo-fayla.html)

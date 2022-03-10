@@ -1,4 +1,4 @@
-## Домашнее задание к занятию "3.4. Операционные системы, лекция 2"
+## Домашнее задание 3.4. Операционные системы, лекция 2
 
 
 __1. На лекции мы познакомились с [node_exporter](https://github.com/prometheus/node_exporter/releases). В демонстрации его исполняемый файл запускался в background.
@@ -27,7 +27,16 @@ vagrant@vagrant:~/tmp$ tar -zxpvf node_exporter-1.3.1.linux-amd64
 vagrant@vagrant:~$ sudo cp tmp/node_exporter-1.3.1.linux-amd64/node_exporter /usr/local/bin
 
 ```
-Создаем Systemd Unit:
+Создаём файл для передачи параметров запуска node_exporter:
+```sh
+vagrant@vagrant:~$ sudo touch /etc/default/node_exporter.cfg
+```
+Вносим туда переменную (__спасибо за пояснения Булату Замилову, который всё объяснил просто и понятно__):
+```sh
+vagrant@vagrant:~$ sudo cat /etc/default/node_exporter.cfg
+$my_options="-value"
+```
+Создаем systemd unit:
 ```sh
 vagrant@vagrant:~$ sudo nano /etc/systemd/system/node_exporter.service
 
@@ -35,8 +44,8 @@ vagrant@vagrant:~$ sudo nano /etc/systemd/system/node_exporter.service
 	Description=Node Exporter
 	
 	[Service]
-	ExecStart=/usr/local/bin/node_exporter
-	EnvironmentFile=/etc/default/node_exporter
+	ExecStart=/usr/local/bin/node_exporter $my_options
+	EnvironmentFile=/etc/default/node_exporter.cfg
 	
 	[Install]
 	WantedBy=multi-user.target
@@ -155,7 +164,10 @@ ___"Нас это огорчит, но не остановит" (с)___
 Перезапускаем виртуалку и проверяем доступность Netdata с хоста.
 
 Важный момент: порты на виртуальной машине и на хосте надо указывать __разные__, иначе ничего не получится.\
-Т.о. в vagrantfile проброс порта Netdata будет выглядеть так: `config.vm.network "forwarded_port", guest: 19999, host: 1999`
+Т.о. в vagrantfile проброс порта Netdata будет выглядеть так:
+```sh
+config.vm.network "forwarded_port", guest: 19999, host: 1999
+```
 
 ![](netdata_dash.jpg)
 
@@ -174,7 +186,7 @@ __4. Можно ли по выводу `dmesg` понять, осознает л
 Более того, на текущий момент человечество не смогло создать полноценного разума, способного себя осознать.\
 __По этой причине, вопрос абсолютно не корректен.__
 
-Однако, если __человек__ посмотрит на вывод `dmesg`, то __человеку станет понятно__, что эта ОС выполняется в виртуальной среде.
+Однако, если __человек__ посмотрит на вывод `dmesg`, то __человеку станет понятно__, что эта ОС выполняется в виртуальной среде и это знание __человек__ сможет как-то использовать.
 ```sh
 vagrant@vagrant:~$ dmesg -T | grep virtual
 [Mon Mar  7 19:11:15 2022] CPU MTRRs all blank - virtualized system.
@@ -223,43 +235,40 @@ vagrant@vagrant:~$ ulimit -Hn
 =Выполнено=
 ----
 
-
 __6. Запустите любой долгоживущий процесс (не `ls`, который отработает мгновенно, а, например, `sleep 1h`) в отдельном неймспейсе процессов;
 	покажите, что ваш процесс работает под `PID 1` через `nsenter`. Для простоты работайте в данном задании под *root* (`sudo -i`).\
 	Под обычным пользователем требуются дополнительные опции (`--map-root-user`) и т.д.__
 
 =Выполнение=
 ----
+
+Делаем новый NS по PID и запускаем в нём `sleep` на час.
+
 ```sh
-vagrant@vagrant:~$ pstree -p
-systemd(1)─┬─VBoxService(781)─┬─{VBoxService}(783)
-...
-           ├─sshd(636)───sshd(1058)───sshd(1088)───bash(1089)───pstree(1370)
-           ├─systemd-journal(345)
-....
-vagrant@vagrant:~$ sudo unshare -f --pid --mount-proc sleep 1h &
-[1] 1371
-vagrant@vagrant:~$ pstree -p
-systemd(1)─┬─VBoxService(781)─┬─{VBoxService}(783)
-....
-           ├─sshd(636)───sshd(1058)───sshd(1088)───bash(1089)─┬─pstree(1420)
-           │                                                  └─sudo(1371)───unshare(1372)───sleep(1373)
-           ├─systemd-journal(345)
-....
-
-
-
-
-
+root@vagrant:~# unshare -f --pid --mount-proc sleep 1h &
+[1] 1762
 ```
-
-
-
-
-
-
-
-
+Проверяем, что получилось и как это выглядит "снаружи".
+```sh
+vagrant@vagrant:~$ ps -efH
+....
+vagrant     1532    1531  0 14:02 pts/1    00:00:00     -bash
+root        1558    1532  0 14:03 pts/1    00:00:00       sudo -i
+root        1559    1558  0 14:03 pts/1    00:00:00         -bash
+root        1762    1559  0 14:40 pts/1    00:00:00           unshare -f --pid --mount-proc sleep 1h
+root        1763    1762  0 14:40 pts/1    00:00:00             sleep 1h
+vagrant     1542    1531  0 14:02 pts/2    00:00:00     -bash
+vagrant     1769    1542  0 14:41 pts/2    00:00:00       ps -efH
+```
+Заходим в нужный NS:
+```sh
+root@vagrant:~# nsenter --target 1762 --pid --mount
+root@vagrant:/# pstree -p
+sleep(1)
+root@vagrant:/#
+```
+Видим, что наш процесс `sleep` имеет PID=1 в созданном NS.\
+При этом для ОС этот процесс имеет PID = 1762.
 
 =Выполнено=
 ----
@@ -272,6 +281,55 @@ __7. Найдите информацию о том, что такое `:(){ :|:&
 
 =Выполнение=
 ----
+Начнём с простого. Известная нам команда `ulimit` позволяет регулировать число процессов в сессии пользователя.\
+Например, `ulimit -n 15` - ограничит число процессов пользователя до 15.
+
+Объяснение, про `:(){ :|:& };:` нашёл тут: https://zalinux.ru/?p=299
+
+__Цитата:__
+```
+В действительности эта команда является логической бомбой.
+Она оперирует определением функции с именем ‘:‘, которая вызывает сама себя дважды: один раз на переднем плане и один раз в фоне.
+Она продолжает своё выполнение снова и снова, пока система не зависнет.
+```
+
+После запуска этой команды начался бесконечный: `-bash: fork: Resource temporarily unavailable`\
+Виртуалка зависла примерно на 10 минут наглухо. Потом ожила.
+
+Изменил `ulimit -n 10` и запустил эту хрень снова. Примерно через 2 минуты машина снова ожила.
+
+```sh
+vagrant@vagrant:~$ ulimit -u 10
+vagrant@vagrant:~$ :(){ :|:& };:
+[1] 135019
+vagrant@vagrant:~$ -bash: fork: retry: Resource temporarily unavailable
+-bash: fork: retry: Resource temporarily unavailable
+....
+-bash: fork: Resource temporarily unavailable
+-bash: fork: Resource temporarily unavailable
+^C
+[1]+  Done                    : | :
+vagrant@vagrant:~$
+```
+
+Смотрим в логе dmesg (было выделено красным):
+```
+[Thu Mar 10 09:37:37 2022] rcu: INFO: rcu_sched self-detected stall on CPU
+[Thu Mar 10 09:37:37 2022] watchdog: BUG: soft lockup - CPU#1 stuck for 90s! [swapper/1:0]
+[Thu Mar 10 09:37:37 2022] rcu:         0-...!: (1 ticks this GP) idle=382/0/0x1 softirq=735025/735025 fqs=0
+[Thu Mar 10 09:37:37 2022] Modules linked in: cfg80211 nfnetlink vboxsf(OE) dm_multipath scsi_dh_rdac scsi_dh_emc scsi_dh_alua input_leds vboxguest(OE) mac_hid serio_raw sch_fq_codel msr ip_tables x_tables autofs4 btrfs zstd_compress raid10 raid456 async_raid6_recov async_memcpy async_pq async_xor async_tx xor raid6_pq libcrc32c raid1 raid0 multipath linear vboxvideo(OE) ttm psmouse ahci libahci drm_kms_helper syscopyarea sysfillrect sysimgblt fb_sys_fops drm e1000 i2c_piix4 pata_acpi video
+[Thu Mar 10 09:37:37 2022]      (t=24339 jiffies g=1285669 q=2742)
+[Thu Mar 10 09:37:37 2022] CPU: 1 PID: 0 Comm: swapper/1 Tainted: G           OE     5.4.0-91-generic #102-Ubuntu
+[Thu Mar 10 09:37:37 2022] rcu: rcu_sched kthread starved for 24339 jiffies! g1285669 f0x0 RCU_GP_WAIT_FQS(5) ->state=0x402 ->cpu=0
+[Thu Mar 10 09:37:37 2022] rcu: RCU grace-period kthread stack dump:
+[Thu Mar 10 09:37:37 2022] Hardware name: innotek GmbH VirtualBox/VirtualBox, BIOS VirtualBox 12/01/2006
+[Thu Mar 10 09:37:37 2022] rcu_sched       I    0    10      2 0x80004000
+```
+Нашёл описание всего этого в `stallwarn`: https://www.kernel.org/doc/Documentation/RCU/stallwarn.txt
+
+Приводить цитаты оттуда не буду - слишком много, муторно и малопонятно.
+
+Уверен, что по этой теме надо отдельно лекцию читать, объяснять, а не вот это вот всё, когда понимания всё равно почти на нуле.
 
 =Выполнено=
 ----
@@ -290,5 +348,14 @@ __7. Найдите информацию о том, что такое `:(){ :|:&
 [__Проброс портов в VirtualBox__](https://losst.ru/probros-portov-virtualbox)
 [__Настройка сети VirtualBox__](https://help.reg.ru/hc/ru/articles/4408054736529-%D0%9D%D0%B0%D1%81%D1%82%D1%80%D0%BE%D0%B9%D0%BA%D0%B0-%D1%81%D0%B5%D1%82%D0%B8-VirtualBox)
 
+----
 
+__Булат Замилов__ *Ответ эксперта*\
+Здравствуйте, в файле, который вы указываете в EnvironmentFile задаете переменную например, `MY_OPTIONS="-a -h"`\
+(например ваш сервис параметром `-а` показывает все логи, а параметром `-h` показывает в логах человекочитаемые цифры в килобайтах, мегабайтах и так далее)\
+Далее, в `ExecStart` вы указываете основную команду `ExecStart=/opt/my_service $MY_OPTIONS`.\
+По факту, строка запуска будет такой - `/opt/my_service -a -h`\
+Получается, в файле можно указать несколько переменных для передачи опций, а можно все в одной переменной
+
+----
 
