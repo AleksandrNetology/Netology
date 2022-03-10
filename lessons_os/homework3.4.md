@@ -174,7 +174,7 @@ __4. Можно ли по выводу `dmesg` понять, осознает л
 Более того, на текущий момент человечество не смогло создать полноценного разума, способного себя осознать.\
 __По этой причине, вопрос абсолютно не корректен.__
 
-Однако, если __человек__ посмотрит на вывод `dmesg`, то __человеку станет понятно__, что эта ОС выполняется в виртуальной среде.
+Однако, если __человек__ посмотрит на вывод `dmesg`, то __человеку станет понятно__, что эта ОС выполняется в виртуальной среде и это знание он сможет как-то использовать.
 ```sh
 vagrant@vagrant:~$ dmesg -T | grep virtual
 [Mon Mar  7 19:11:15 2022] CPU MTRRs all blank - virtualized system.
@@ -230,28 +230,7 @@ __6. Запустите любой долгоживущий процесс (не
 
 =Выполнение=
 ----
-```sh
-vagrant@vagrant:~$ pstree -p
-systemd(1)─┬─VBoxService(781)─┬─{VBoxService}(783)
-...
-           ├─sshd(636)───sshd(1058)───sshd(1088)───bash(1089)───pstree(1370)
-           ├─systemd-journal(345)
-....
-vagrant@vagrant:~$ sudo unshare -f --pid --mount-proc sleep 1h &
-[1] 1371
-vagrant@vagrant:~$ pstree -p
-systemd(1)─┬─VBoxService(781)─┬─{VBoxService}(783)
-....
-           ├─sshd(636)───sshd(1058)───sshd(1088)───bash(1089)─┬─pstree(1420)
-           │                                                  └─sudo(1371)───unshare(1372)───sleep(1373)
-           ├─systemd-journal(345)
-....
 
-
-
-
-
-```
 
 
 
@@ -272,6 +251,56 @@ __7. Найдите информацию о том, что такое `:(){ :|:&
 
 =Выполнение=
 ----
+Начнём с простого. Известная нам команда `ulimit` позволяет нам регулировать число процессов в сессии.
+Например, `ulimit -n 15` - ограничит число процессов пользователя до 15.
+
+Теперь про эту странную команду. Частями:
+
+`:` - является встроенной командой Bash, которая всегда возвращает true;
+`()` - оператор позволяет выполнить команду в порядке приоритета;
+`{}` - объединение двух или более команд, каждая следующая команда зависит от выполнения предыдущей;
+`|` - оператор потока PIPE, выходные данные первой команды действуют как входные данные для второй команды;
+`;` - оператор позволяет запускать несколько команд за один раз, и выполнение команды происходит последовательно;
+`&` - запуск команды в фоновом режиме.
+
+Что это значит в комплексе? Я не понял. Бред какой-то. Скрипты я пока не знаю и разобраться с этим самостоятельно не могу. Гугл не помог.
+
+После запуска этой команды начался бесконечный: `-bash: fork: Resource temporarily unavailable`\
+Виртуалка записла примерно на 10 минут наглухо.
+
+Изменил `ulimit -n 10` и запустил эту хрень снова. Примерно через 2 минуты машина снова ожила.
+
+```sh
+vagrant@vagrant:~$ ulimit -u 10
+vagrant@vagrant:~$ :(){ :|:& };:
+[1] 135019
+vagrant@vagrant:~$ -bash: fork: retry: Resource temporarily unavailable
+-bash: fork: retry: Resource temporarily unavailable
+....
+-bash: fork: Resource temporarily unavailable
+-bash: fork: Resource temporarily unavailable
+^C
+[1]+  Done                    : | :
+vagrant@vagrant:~$
+```
+
+Смотрим в логе dmesg выделенное красным:
+```
+[Thu Mar 10 09:37:37 2022] rcu: INFO: rcu_sched self-detected stall on CPU
+[Thu Mar 10 09:37:37 2022] watchdog: BUG: soft lockup - CPU#1 stuck for 90s! [swapper/1:0]
+[Thu Mar 10 09:37:37 2022] rcu:         0-...!: (1 ticks this GP) idle=382/0/0x1 softirq=735025/735025 fqs=0
+[Thu Mar 10 09:37:37 2022] Modules linked in: cfg80211 nfnetlink vboxsf(OE) dm_multipath scsi_dh_rdac scsi_dh_emc scsi_dh_alua input_leds vboxguest(OE) mac_hid serio_raw sch_fq_codel msr ip_tables x_tables autofs4 btrfs zstd_compress raid10 raid456 async_raid6_recov async_memcpy async_pq async_xor async_tx xor raid6_pq libcrc32c raid1 raid0 multipath linear vboxvideo(OE) ttm psmouse ahci libahci drm_kms_helper syscopyarea sysfillrect sysimgblt fb_sys_fops drm e1000 i2c_piix4 pata_acpi video
+[Thu Mar 10 09:37:37 2022]      (t=24339 jiffies g=1285669 q=2742)
+[Thu Mar 10 09:37:37 2022] CPU: 1 PID: 0 Comm: swapper/1 Tainted: G           OE     5.4.0-91-generic #102-Ubuntu
+[Thu Mar 10 09:37:37 2022] rcu: rcu_sched kthread starved for 24339 jiffies! g1285669 f0x0 RCU_GP_WAIT_FQS(5) ->state=0x402 ->cpu=0
+[Thu Mar 10 09:37:37 2022] rcu: RCU grace-period kthread stack dump:
+[Thu Mar 10 09:37:37 2022] Hardware name: innotek GmbH VirtualBox/VirtualBox, BIOS VirtualBox 12/01/2006
+[Thu Mar 10 09:37:37 2022] rcu_sched       I    0    10      2 0x80004000
+```
+Нашёл описание `stallwarn`: https://www.kernel.org/doc/Documentation/RCU/stallwarn.txt
+Приводить цитаты отттуда не буду - слишком много.
+
+Но! Должен вам сказать, что по этой теме надо лецию читать, а не отдавать ученикам самостоятельно эту херь разбирать.
 
 =Выполнено=
 ----
