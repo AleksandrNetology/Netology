@@ -297,7 +297,8 @@ vagrant@vagrant:~$
 [Thu Mar 10 09:37:37 2022] Hardware name: innotek GmbH VirtualBox/VirtualBox, BIOS VirtualBox 12/01/2006
 [Thu Mar 10 09:37:37 2022] rcu_sched       I    0    10      2 0x80004000
 ```
-Нашёл описание `stallwarn`: https://www.kernel.org/doc/Documentation/RCU/stallwarn.txt\
+Нашёл описание `stallwarn`: https://www.kernel.org/doc/Documentation/RCU/stallwarn.txt
+
 Приводить цитаты отттуда не буду - слишком много.
 
 Но! Должен вам сказать, что по этой теме надо отдельно лекцию читать. [censored]
