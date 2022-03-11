@@ -376,5 +376,3 @@ https://losst.ru/perenapravlenie-vvoda-vyvoda-linux
 Помним, что у `screen` есть альтернатива - `tmux`: https://losst.ru/shpargalka-po-tmux
 
 Прекрасная статья про `tee`: https://losst.ru/komanda-tee-linux
-
-reptir... ни одного приличного слова... ru/fv
