@@ -275,6 +275,20 @@ vagrant@vagrant:~$
 vagrant@vagrant:~$ reptyr 1250
 ```
 Запускается `htop`, видим его интерфейс.
+----
+Но даже при инсталляции `reptyr` убивает процессор:\
+dmesg показыват:\
+```sh
+[Fri Mar 11 08:30:54 2022] rcu: INFO: rcu_sched self-detected stall on CPU
+[Fri Mar 11 08:30:54 2022] rcu:         0-...!: (1 GPs behind) idle=48a/1/0x4000000000000002 softirq=741693/741694 fqs=1
+```
+В консоли:
+```sh
+Processing triggers for man-db (2.9.1-1) ...
+
+Message from syslogd@vagrant at Mar 11 08:30:42 ...
+ kernel:[67397.372047] watchdog: BUG: soft lockup - CPU#1 stuck for 22s! [kworker/1:0:44081]
+```
 
 --------------------------------------------------------------------------------------
 
@@ -313,3 +327,8 @@ https://losst.ru/perenapravlenie-vvoda-vyvoda-linux
 Прекрасная статья про `tee`: https://losst.ru/komanda-tee-linux
 
 reptir... ни одного приличного слова... ru/fv
+Даже при инсталляции он убивает процессор: 
+```sh
+[Fri Mar 11 08:30:54 2022] rcu: INFO: rcu_sched self-detected stall on CPU
+[Fri Mar 11 08:30:54 2022] rcu:         0-...!: (1 GPs behind) idle=48a/1/0x4000000000000002 softirq=741693/741694 fqs=1
+```
