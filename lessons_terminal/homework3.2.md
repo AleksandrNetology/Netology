@@ -241,13 +241,14 @@ __Выполнение__
 --------------------------------------------------------------------------------------
 
 >13. Бывает, что есть необходимость переместить запущенный процесс из одной сессии в другую.\
-	Попробуйте сделать это, воспользовавшись reptyr. __[хелп по reptyr](https://github.com/nelhage/reptyr#readme)__\
+	Попробуйте сделать это, воспользовавшись `reptyr`. __[хелп по reptyr](https://github.com/nelhage/reptyr#readme)__\
 	Например, так можно перенести в `screen` процесс, который вы запустили по ошибке в обычной SSH-сессии.
 
 __Выполнение__
 
 Во-первых, надо исправить значение: kernel.yama.ptrace_scope = 0 в файле `/etc/sysctl.d/10-ptrace.conf`\
-Во-вторых, можно использовать аналог `screen` - программой `tmux`.
+Во-вторых, можно использовать аналог `screen` - программой `tmux`.\
+В-третьих, устанавливаем `reptyr`: `sudo apt-get install reptyr`
 
 ```sh
 sudo nano /etc/sysctl.d/10-ptrace.conf
@@ -275,19 +276,22 @@ vagrant@vagrant:~$
 vagrant@vagrant:~$ reptyr 1250
 ```
 Запускается `htop`, видим его интерфейс.
+
 ----
-Но даже при инсталляции `reptyr` убивает процессор:\
-dmesg показыват:\
-```sh
-[Fri Mar 11 08:30:54 2022] rcu: INFO: rcu_sched self-detected stall on CPU
-[Fri Mar 11 08:30:54 2022] rcu:         0-...!: (1 GPs behind) idle=48a/1/0x4000000000000002 softirq=741693/741694 fqs=1
-```
+Но даже при инсталляции `reptyr` убивает процессор!
+
 В консоли:
 ```sh
 Processing triggers for man-db (2.9.1-1) ...
 
 Message from syslogd@vagrant at Mar 11 08:30:42 ...
  kernel:[67397.372047] watchdog: BUG: soft lockup - CPU#1 stuck for 22s! [kworker/1:0:44081]
+```
+
+`dmesg` показывает:
+```sh
+[Fri Mar 11 08:30:54 2022] rcu: INFO: rcu_sched self-detected stall on CPU
+[Fri Mar 11 08:30:54 2022] rcu:         0-...!: (1 GPs behind) idle=48a/1/0x4000000000000002 softirq=741693/741694 fqs=1
 ```
 
 --------------------------------------------------------------------------------------
@@ -327,8 +331,3 @@ https://losst.ru/perenapravlenie-vvoda-vyvoda-linux
 Прекрасная статья про `tee`: https://losst.ru/komanda-tee-linux
 
 reptir... ни одного приличного слова... ru/fv
-Даже при инсталляции он убивает процессор: 
-```sh
-[Fri Mar 11 08:30:54 2022] rcu: INFO: rcu_sched self-detected stall on CPU
-[Fri Mar 11 08:30:54 2022] rcu:         0-...!: (1 GPs behind) idle=48a/1/0x4000000000000002 softirq=741693/741694 fqs=1
-```
