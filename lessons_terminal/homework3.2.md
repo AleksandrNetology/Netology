@@ -293,6 +293,53 @@ Message from syslogd@vagrant at Mar 11 08:30:42 ...
 [Fri Mar 11 08:30:54 2022] rcu: INFO: rcu_sched self-detected stall on CPU
 [Fri Mar 11 08:30:54 2022] rcu:         0-...!: (1 GPs behind) idle=48a/1/0x4000000000000002 softirq=741693/741694 fqs=1
 ```
+__И вот ещё что.__
+
+Провёл вот такой эксперимент. См. ниже.
+
+Попробовал перенести процесс `ping(1160)` с помощью `reptyr` не получилось.\
+В этом процессе работает вот такой цикл:
+```sh
+while true; do ping 8.8.8.8 >> tmp/ping.log; sleep 1s; done &
+```
+Итак...
+```sh
+vagrant@vagrant:~$ pstree -p
+...
+         ├─tmux: server(1068)─┬─bash(1069)───bash(1159)───ping(1160)
+         │                    ├─bash(1121)
+         │                    ├─bash(1131)
+         │                    ├─bash(1143)
+         │                    ├─bash(1192)───htop(1250)───htop(1253)
+         │                    ├─bash(1216)───reptyr(1252)
+...
+```
+
+```sh
+vagrant@vagrant:~$ echo $$
+1121
+vagrant@vagrant:~$ reptyr 1160
+[-] Process 1159 (bash) shares 1160's process group. Unable to attach.
+(This most commonly means that 1160 has suprocesses).
+Unable to attach to pid 1160: Invalid argument
+vagrant@vagrant:~$ reptyr -T 1160
+[-] Unable to find the fd for the pty!
+Unable to attach to pid 1160: No such process
+vagrant@vagrant:~$ ps aux | grep ping
+vagrant     1160  0.1  0.0   7092   932 pts/1    S    18:33   0:04 ping 8.8.8.8
+```
+Получается, что reptyr сработал с утилитой `htop`, но не сработал с циклами типа:
+
+```sh
+while true; do [что-нибудь] >> [файл]; sleep 1s; done &
+```
+Вывод:
+```
+Рептир - это некий костыль.\
+Прежде чем запускать очень важную задачу - проверь, в той ли сессии планируешь запускать.\
+Это как зубы по утрам чистить или руки перед едой мыть. Если же всё-таки ошибся, то не тупи,\
+перезапускай: помни, всё можно перезапустить, кроме жизни.
+```
 
 --------------------------------------------------------------------------------------
 
