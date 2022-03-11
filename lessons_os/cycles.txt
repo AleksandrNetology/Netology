@@ -1,0 +1,2 @@
+while true; do date +%s >> tmp/det.log; sleep 1s; done &
+while true; do ping 8.8.8.8 >> tmp/ping.log; sleep 1s; done &
