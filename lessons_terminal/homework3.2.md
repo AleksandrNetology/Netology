@@ -75,7 +75,7 @@ __Выполнение__
 	5 - cinque
 	vagrant@netology:~$ cat tmp/summ.txt 			# Смотрим содержимое результирующего файла
 	undici - 11
-  netology:~$ cat test/summ.txt 			# Проверяем содержимое результирующего файла
+  	vagrant@netology:~$ cat test/summ.txt 			# Проверяем содержимое результирующего файла
 	vagrant@netology:~$ cat <tmp/f1.txt >>tmp/summ.txt	# Выполнение поставленной задачи
 	vagrant@netology:~$ cat tmp/summ.txt 			# Проверяем содержимое результирующего файла
 	undici - 11
