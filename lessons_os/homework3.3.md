@@ -51,38 +51,43 @@ __Ответ: /etc/magic.mgc__
 	
 __Выполнение__
 
-Создаём пустой файл:
+[__Пример__](https://cloudmaker.ru/tutorials/kak-ochistit-diskovoe-prostranstvo-esli-posle-udaleniya-fajla-mesto-na-diske-ne-osvobodilos-interaktivnyj-bash-skript/)
+
 ```sh
-vagrant@vagrant:~$ touch tmp/ping.log
-vagrant@vagrant:~$ ll tmp/*.log
--rw-rw-r-- 1 vagrant vagrant 0 Mar 10 19:33 tmp/ping.log
-```
-Запускаем `tmux` с циклом:
-```sh
-vagrant@vagrant:~$ while true; do ping 8.8.8.8 >> tmp/ping.log; sleep 1s; done &
-[1] 1435
-vagrant@vagrant:~$ pstree -p
-...
-           ├─tmux: server(1413)─┬─bash(1414)─┬─bash(1435)───ping(1436)
-           │                    │            └─pstree(1456)
-...
-vagrant@vagrant:~$ lsof | grep /tmp
-tmux:\x20 1413                       vagrant    5u     unix 0x0000000000000000      0t0      32293 /tmp/tmux-1000/default type=STREAM
-tmux:\x20 1413                       vagrant    6u     unix 0x0000000000000000      0t0      32786 /tmp/tmux-1000/default type=STREAM
-vagrant@vagrant:~$ ll tmp/ping.log
--rw-rw-r-- 1 vagrant vagrant 29577 Mar 10 19:44 tmp/ping.log
-vagrant@vagrant:~$ rm tmp/ping.log
-vagrant@vagrant:~$ ll tmp/ping.log
-ls: cannot access 'tmp/ping.log': No such file or directory
-vagrant@vagrant:~$
-```
-Возвращаемся в базовую консоль:
-```sh
+vagrant@vagrant:~$ mkdir tmp
+vagrant@vagrant:~$ touch tmp/test.txt
+vagrant@vagrant:~$ echo 'Hello world!' > tmp/test.txt
+vagrant@vagrant:~$ cat tmp/test.txt
+Hello world!
+vagrant@vagrant:~$ ping 8.8.8.8 >> tmp/test.txt &
+[1] 13918
 vagrant@vagrant:~$ ps aux | grep ping
-vagrant     1396  0.1  0.0   7092   936 ?        S    19:31   0:00 ping 8.8.8.8
-vagrant     1436  0.1  0.0   7092   864 pts/2    S    19:36   0:00 ping 8.8.8.8
-vagrant     1440  0.0  0.0   6300   736 pts/0    S+   19:38   0:00 grep --color=auto ping
+vagrant    13918  0.0  0.0   7092   936 pts/0    S    14:30   0:00 ping 8.8.8.8
+vagrant    13923  0.0  0.0   6300   736 pts/0    S+   14:31   0:00 grep --color=auto ping
+vagrant@vagrant:~$ ll tmp/
+total 12
+drwxrwxr-x 2 vagrant vagrant 4096 Mar 15 14:29 ./
+drwxr-xr-x 5 vagrant vagrant 4096 Mar 15 14:29 ../
+-rw-rw-r-- 1 vagrant vagrant 3464 Mar 15 14:31 test.txt
+vagrant@vagrant:~$ sudo lsof | grep test
+ping      13918                        vagrant    1w      REG              253,0     4808    1048604 /home/vagrant/tmp/test.txt
+vagrant@vagrant:~$ rm -r tmp/test.txt
+vagrant@vagrant:~$ sudo lsof | grep test
+ping      13918                        vagrant    1w      REG              253,0     7869    1048604 /home/vagrant/tmp/test.txt (deleted)
+vagrant@vagrant:~$ sudo lsof -p 13918
+COMMAND   PID    USER   FD   TYPE DEVICE SIZE/OFF    NODE NAME
+ping    13918 vagrant  cwd    DIR  253,0     4096 1051845 /home/vagrant
+...
+ping    13918 vagrant    0u   CHR  136,0      0t0       3 /dev/pts/0
+ping    13918 vagrant    1w   REG  253,0    25366 1048604 /home/vagrant/tmp/test.txt (deleted)
+ping    13918 vagrant    2u   CHR  136,0      0t0       3 /dev/pts/0
+ping    13918 vagrant    3u  icmp             0t0   43920 00000000:0001->00000000:0000
+ping    13918 vagrant    4u  sock    0,9      0t0   43921 protocol: PINGv6
 vagrant@vagrant:~$
+
+
+
+
 ```
 
 ------
