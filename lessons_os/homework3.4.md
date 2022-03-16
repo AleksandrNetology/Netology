@@ -20,25 +20,35 @@ vagrant@vagrant:~/tmp$ wget https://github.com/prometheus/node_exporter/releases
 ```
 Распаковываем:
 ```sh
-vagrant@vagrant:~/tmp$ tar -zxpvf node_exporter-1.3.1.linux-amd64.tar.gz
+vagrant@vagrant:~/tmp$ tar -zxpvf node_exporter-1.3.1.linux-amd64
 ```
 Копируем исполняемый файл в `/usr/local/bin`:
 ```sh
 vagrant@vagrant:~$ sudo cp tmp/node_exporter-1.3.1.linux-amd64/node_exporter /usr/local/bin
 
 ```
+Создаём файл для передачи параметров запуска node_exporter:
+```sh
+vagrant@vagrant:~$ sudo touch /etc/default/node_exporter.cfg
+```
+Вносим туда переменную (__спасибо за пояснения Булату Замилову, который всё объяснил просто и понятно__):
+```sh
+vagrant@vagrant:~$ sudo cat /etc/default/node_exporter.cfg
+$my_options="-value"
+```
 Создаем systemd unit:
 ```sh
 vagrant@vagrant:~$ sudo nano /etc/systemd/system/node_exporter.service
 
-[Unit]
-Description=Node Exporter
+	[Unit]
+	Description=Node Exporter
 	
-[Service]
-ExecStart=/usr/local/bin/node_exporter
+	[Service]
+	ExecStart=/usr/local/bin/node_exporter $my_options
+	EnvironmentFile=/etc/default/node_exporter.cfg
 	
-[Install]
-WantedBy=multi-user.target
+	[Install]
+	WantedBy=multi-user.target
 ```
 Добавляем сервис в автозагрузку, запускаем его, проверяем статус:
 ```sh
@@ -338,5 +348,11 @@ vagrant@vagrant:~$
 [__Проброс портов в VirtualBox__](https://losst.ru/probros-portov-virtualbox)
 [__Настройка сети VirtualBox__](https://help.reg.ru/hc/ru/articles/4408054736529-%D0%9D%D0%B0%D1%81%D1%82%D1%80%D0%BE%D0%B9%D0%BA%D0%B0-%D1%81%D0%B5%D1%82%D0%B8-VirtualBox)
 
-
+----
+Булат Замилов *Ответ эксперта*
+Здравствуйте, в файле, который вы указываете в EnvironmentFile задаете переменную например, MY_OPTIONS="-a -h" (например ваш сервис параметром -а показывает все логи, а параметром -h показывает в логах человекочитаемые цифры в килобайтах, мегабайтах и так далее)
+Далее, в ExecStart вы указываете основную команду ExecStart=/opt/my_service $MY_OPTIONS.
+По факту, строка запуска будет такой - /opt/my_service -a -h
+Получается, в файле можно указать несколько переменных для передачи опций, а можно все в одной переменной
+----
 
