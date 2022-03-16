@@ -51,8 +51,6 @@ __Ответ: /etc/magic.mgc__
 	
 __Выполнение__
 
-[__Пример__](https://cloudmaker.ru/tutorials/kak-ochistit-diskovoe-prostranstvo-esli-posle-udaleniya-fajla-mesto-na-diske-ne-osvobodilos-interaktivnyj-bash-skript/)
-
 ```sh
 vagrant@vagrant:~$ mkdir tmp
 vagrant@vagrant:~$ touch tmp/test.txt
@@ -74,20 +72,10 @@ ping      13918                        vagrant    1w      REG              253,0
 vagrant@vagrant:~$ rm -r tmp/test.txt
 vagrant@vagrant:~$ sudo lsof | grep test
 ping      13918                        vagrant    1w      REG              253,0     7869    1048604 /home/vagrant/tmp/test.txt (deleted)
-vagrant@vagrant:~$ sudo lsof -p 13918
-COMMAND   PID    USER   FD   TYPE DEVICE SIZE/OFF    NODE NAME
-ping    13918 vagrant  cwd    DIR  253,0     4096 1051845 /home/vagrant
-...
-ping    13918 vagrant    0u   CHR  136,0      0t0       3 /dev/pts/0
-ping    13918 vagrant    1w   REG  253,0    25366 1048604 /home/vagrant/tmp/test.txt (deleted)
-ping    13918 vagrant    2u   CHR  136,0      0t0       3 /dev/pts/0
-ping    13918 vagrant    3u  icmp             0t0   43920 00000000:0001->00000000:0000
-ping    13918 vagrant    4u  sock    0,9      0t0   43921 protocol: PINGv6
-vagrant@vagrant:~$
-
-
-
-
+vagrant@vagrant:~$ sudo ls -l /proc/13918/fd | grep tmp/test.txt
+l-wx------ 1 root root 64 Mar 15 14:32 1 -> /home/vagrant/tmp/test.txt (deleted)
+vagrant@vagrant:~$ sudo truncate -s 0 /proc/13918/fd/1
+vagrant@vagrant:~$ kill -9 13918
 ```
 
 ------
@@ -227,3 +215,8 @@ l    - мультипоточный процесс;
 2. [подробно от автора](http://redsymbol.net/articles/unofficial-bash-strict-mode/).
 
 Про дополнительное обозначение статуса процесса, а именно `l` - [лидер сессии](https://qastack.ru/unix/18166/what-are-session-leaders-in-ps).
+
+Примеры очистки удалённых открыты файлов:
+[__Пример 1__](https://cloudmaker.ru/tutorials/kak-ochistit-diskovoe-prostranstvo-esli-posle-udaleniya-fajla-mesto-na-diske-ne-osvobodilos-interaktivnyj-bash-skript/)
+[__Пример 2__](https://blog.bissquit.com/unix/udalenie-otkrytogo-fajla-v-linux/)
+[__Пример 3: 6 способов__](https://www.kobzarev.com/linux/kak-ochistit-fayl-v-linux/)
