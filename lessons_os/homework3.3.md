@@ -220,3 +220,4 @@ l    - мультипоточный процесс;
 [__Пример 1__](https://cloudmaker.ru/tutorials/kak-ochistit-diskovoe-prostranstvo-esli-posle-udaleniya-fajla-mesto-na-diske-ne-osvobodilos-interaktivnyj-bash-skript/)
 [__Пример 2__](https://blog.bissquit.com/unix/udalenie-otkrytogo-fajla-v-linux/)
 [__Пример 3: 6 способов__](https://www.kobzarev.com/linux/kak-ochistit-fayl-v-linux/)
+[__Ещё одна статья__](https://santehnika-terra.ru/articles/linux-sposob-obnuleniya-otkrytogo-udalennogo-fayla.html)
