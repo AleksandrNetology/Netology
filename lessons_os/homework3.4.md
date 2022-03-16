@@ -20,7 +20,7 @@ vagrant@vagrant:~/tmp$ wget https://github.com/prometheus/node_exporter/releases
 ```
 Распаковываем:
 ```sh
-vagrant@vagrant:~/tmp$ tar -zxpvf node_exporter-1.3.1.linux-amd64
+vagrant@vagrant:~/tmp$ tar -zxpvf node_exporter-1.3.1.linux-amd64.tar.gz
 ```
 Копируем исполняемый файл в `/usr/local/bin`:
 ```sh
@@ -31,15 +31,14 @@ vagrant@vagrant:~$ sudo cp tmp/node_exporter-1.3.1.linux-amd64/node_exporter /us
 ```sh
 vagrant@vagrant:~$ sudo nano /etc/systemd/system/node_exporter.service
 
-	[Unit]
-	Description=Node Exporter
+[Unit]
+Description=Node Exporter
 	
-	[Service]
-	ExecStart=/usr/local/bin/node_exporter
-	EnvironmentFile=/etc/default/node_exporter
+[Service]
+ExecStart=/usr/local/bin/node_exporter
 	
-	[Install]
-	WantedBy=multi-user.target
+[Install]
+WantedBy=multi-user.target
 ```
 Добавляем сервис в автозагрузку, запускаем его, проверяем статус:
 ```sh
