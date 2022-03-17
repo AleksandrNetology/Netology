@@ -27,6 +27,23 @@ Linux поддерживает порядка 50 файловых систем.
 
 > Помним, что: `sudo apt-get install manpages-dev` - установка полной версии `man`, включая 2-й раздел.
 
+
+`man 2 stat`:
+```sh
+struct stat {
+	dev_t     st_dev;         /* ID устройства, содержащего файл */
+	ino_t     st_ino;         /* номер Inode */
+	mode_t    st_mode;        /* биты доступа + тип файла */
+	nlink_t   st_nlink;       /* число hard links (жестких ссылок) */
+	uid_t     st_uid;         /* User ID – принадлежность пользователю */
+	gid_t     st_gid;         /* Group ID – принадлежность группе */
+	dev_t     st_rdev; /* Device ID – тип устройства, если файл является файлом специального назначения */
+	off_t     st_size;        /* Размер в байтах */
+	struct timespec st_atim;  /* Время последнего доступа */
+	struct timespec st_mtim;  /* Время последнего изменения содержимого */
+	struct timespec st_ctim;  /* Время последнего изменения метаданных */
+```
+
 Так же есть одноимённая утилита `stat`, которая использует этот вызов и выводит в консоль те же данные, но в читаемом виде.\
 Эта утилита входит в пакет [GNU Core Utilities](https://ru.wikipedia.org/wiki/GNU_Coreutils) и установлена в ОС по умолчанию.\
 Пример:
