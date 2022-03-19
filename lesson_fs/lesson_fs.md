@@ -90,55 +90,56 @@ inode - это область данных в файловой системе. �
 >Получается, что в FS может существовать несколько файлов, которые ссылаются на один и тот же номер индексного дескриптора!
 
 Пример:
+
 ```sh
-vagrant@vagrant:~$ touch tmp/file1
-vagrant@vagrant:~$ stat tmp/file1
-  File: tmp/file1
-  Size: 0               Blocks: 0          IO Block: 4096   regular empty file
-Device: fd00h/64768d    Inode: 1048612     Links: 1
+vagrant@vagrant:~/tmp$ touch file1.txt
+vagrant@vagrant:~/tmp$ echo "Hello worldZ!" > file1.txt
+vagrant@vagrant:~/tmp$ cat file1.txt
+Hello worldZ!
+vagrant@vagrant:~/tmp$ ln file1.txt file2.txt
+vagrant@vagrant:~/tmp$ ls -alh
+total 16K
+drwxrwxr-x 2 vagrant vagrant 4.0K Mar 19 20:34 .
+drwxr-xr-x 5 vagrant vagrant 4.0K Mar 19 19:55 ..
+-rw-rw-r-- 2 vagrant vagrant   14 Mar 19 19:56 file1.txt
+-rw-rw-r-- 2 vagrant vagrant   14 Mar 19 19:56 file2.txt
+vagrant@vagrant:~/tmp$ stat file1.txt
+  File: file1.txt
+  Size: 14              Blocks: 8          IO Block: 4096   regular file
+Device: fd00h/64768d    Inode: 1048600     Links: 2
 Access: (0664/-rw-rw-r--)  Uid: ( 1000/ vagrant)   Gid: ( 1000/ vagrant)
-Access: 2022-03-18 14:59:14.229361394 +0000
-Modify: 2022-03-18 14:59:14.229361394 +0000
-Change: 2022-03-18 14:59:14.229361394 +0000
+Access: 2022-03-19 19:56:28.726622427 +0000
+Modify: 2022-03-19 19:56:22.967744427 +0000
+Change: 2022-03-19 20:34:37.574474391 +0000
  Birth: -
-vagrant@vagrant:~$ ln tmp/file1 file2
-vagrant@vagrant:~$ ln tmp/file1 tmp/file2
-vagrant@vagrant:~$ ls -alh tmp/
-total 8.0K
-drwxrwxr-x 2 vagrant vagrant 4.0K Mar 18 15:01 .
-drwxr-xr-x 6 vagrant vagrant 4.0K Mar 18 15:00 ..
--rw-rw-r-- 3 vagrant vagrant    0 Mar 18 14:59 file1
--rw-rw-r-- 3 vagrant vagrant    0 Mar 18 14:59 file2 
-vagrant@vagrant:~$ stat tmp/file1
-  File: tmp/file1
-  Size: 0               Blocks: 0          IO Block: 4096   regular empty file
-Device: fd00h/64768d    Inode: 1048612     Links: 3
+vagrant@vagrant:~/tmp$ stat file2.txt
+  File: file2.txt
+  Size: 14              Blocks: 8          IO Block: 4096   regular file
+Device: fd00h/64768d    Inode: 1048600     Links: 2
 Access: (0664/-rw-rw-r--)  Uid: ( 1000/ vagrant)   Gid: ( 1000/ vagrant)
-Access: 2022-03-18 14:59:14.229361394 +0000
-Modify: 2022-03-18 14:59:14.229361394 +0000
-Change: 2022-03-18 15:01:09.245361394 +0000
- Birth: -
-vagrant@vagrant:~$ stat tmp/file2
-  File: tmp/file2
-  Size: 0               Blocks: 0          IO Block: 4096   regular empty file
-Device: fd00h/64768d    Inode: 1048612     Links: 3
-Access: (0664/-rw-rw-r--)  Uid: ( 1000/ vagrant)   Gid: ( 1000/ vagrant)
-Access: 2022-03-18 14:59:14.229361394 +0000
-Modify: 2022-03-18 14:59:14.229361394 +0000
-Change: 2022-03-18 15:01:09.245361394 +0000
- Birth: - 
-vagrant@vagrant:~$ stat file2
-  File: file2
-  Size: 0               Blocks: 0          IO Block: 4096   regular empty file
-Device: fd00h/64768d    Inode: 1048612     Links: 3
-Access: (0664/-rw-rw-r--)  Uid: ( 1000/ vagrant)   Gid: ( 1000/ vagrant)
-Access: 2022-03-18 14:59:14.229361394 +0000
-Modify: 2022-03-18 14:59:14.229361394 +0000
-Change: 2022-03-18 15:01:09.245361394 +0000
+Access: 2022-03-19 19:56:28.726622427 +0000
+Modify: 2022-03-19 19:56:22.967744427 +0000
+Change: 2022-03-19 20:34:37.574474391 +0000
  Birth: - 
 ```
+
 В приведённом выше примере можно увидеть, что вроде как разные файлы на самом деле ссылаются на один и тот же
 индексный дескриптор, а значит на одну и ту же область, в которой хранится содержимое файла.
+
+>Как посмотреть все hard-линки на файл? Для этого надо вести поиск по значению `inode`
+
+Пример:
+```sh
+vagrant@vagrant:~/tmp$ find -inum 1048600
+./file1.txt
+./file2.txt
+```
+С точки зрения ОС эти 2 файла являются равнозначными.
+
+
+
+Команда `find <путь> -type f -printf '%n %p\n'` ищет и выводит список файлов указывая количество hard-линков и их имена. 
+
 
 
 
