@@ -226,9 +226,81 @@ Change: 2022-03-19 20:34:37.574474391 +0000
 - __regular file__, стандартный файл;
 - __directory__, директория;
 - __symlink__ – родственная жесткой ссылке сущность. Встречаются названия мягкая
-ссылка, симлинк. В отличие от hardlink, – symlink это полноценный объект в
+ссылка или симлинк. В отличие от hardlink, – symlink это полноценный объект в
 файловой системе, который, в частности, может переходить за ее границы и ссылаться
 на объекты других файловых систем. Не увеличивает счетчик ссылок Links и не влияет на
 сохранность адреса ссылки (аналогия с ярлыком Windows) при удалении;
-- __pipe__ – мы с вами уже встречались с пайпами, |, это неименованные пайпы. 
+- __pipe__ – мы с вами уже встречались с пайпами, `"|"`, это неименованные или анонимные пайпы. 
+
+Создадим себе симлинк с относительными путями:
+```sh
+vagrant@vagrant:~$ ln -s tmp/file1.txt sfile1
+vagrant@vagrant:~$ ls -alh
+total 44K
+drwxr-xr-x 5 vagrant vagrant 4.0K Mar 21 19:39 .
+drwxr-xr-x 3 root    root    4.0K Dec 19 19:42 ..
+...
+lrwxrwxrwx 1 vagrant vagrant   13 Mar 21 19:39 sfile1 -> tmp/file1.txt
+...
+vagrant@vagrant:~$
+```
+Убедимся, что значения `inode` у них различны:
+```sh
+vagrant@vagrant:~$ stat sfile1
+  File: sfile1 -> tmp/file1.txt
+  Size: 13              Blocks: 0          IO Block: 4096   symbolic link
+Device: fd00h/64768d    __Inode: 1048606__     Links: 1
+Access: (0777/lrwxrwxrwx)  Uid: ( 1000/ vagrant)   Gid: ( 1000/ vagrant)
+Access: 2022-03-21 19:39:39.141533534 +0000
+Modify: 2022-03-21 19:39:22.241087535 +0000
+Change: 2022-03-21 19:39:22.241087535 +0000
+ Birth: -
+vagrant@vagrant:~$ stat tmp/file1.txt
+  File: tmp/file1.txt
+  Size: 14              Blocks: 8          IO Block: 4096   regular file
+Device: fd00h/64768d    __Inode: 1048600__     Links: 2
+Access: (0664/-rw-rw-r--)  Uid: ( 1000/ vagrant)   Gid: ( 1000/ vagrant)
+Access: 2022-03-19 19:56:28.726622427 +0000
+Modify: 2022-03-19 19:56:22.967744427 +0000
+Change: 2022-03-19 20:34:37.574474391 +0000
+ Birth: -
+```
+
+Симлинк с абсолютными путями:
+```sh
+vagrant@vagrant:~$ ln -s /home/vagrant/tmp/file1.txt sfile2
+vagrant@vagrant:~$ ls -alh
+total 44K
+drwxr-xr-x 5 vagrant vagrant 4.0K Mar 21 19:46 .
+drwxr-xr-x 3 root    root    4.0K Dec 19 19:42 ..
+...
+lrwxrwxrwx 1 vagrant vagrant   13 Mar 21 19:39 sfile1 -> tmp/file1.txt
+lrwxrwxrwx 1 vagrant vagrant   27 Mar 21 19:46 sfile2 -> /home/vagrant/tmp/file1.txt
+...
+```
+
+Теперь поговорим про тип файла __pipe__.
+
+С помощью  команды `mkfifo` можно создать именованный pipe. Фактически это файл, но для наглядности
+проще представить себе именованную трубу, в один конец которой какая угодно программа может заливать
+данные, а с другоко конца этой трубы, любая программа может их получать.
+
+Пример:
+```sh
+vagrant@vagrant:~/tmp$ mkfifo test_pipe
+vagrant@vagrant:~/tmp$ ls -l
+total 8
+-rw-rw-r-- 2 vagrant vagrant 14 Mar 19 19:56 file1.txt
+-rw-rw-r-- 2 vagrant vagrant 14 Mar 19 19:56 file2.txt
+__p__rw-rw-r-- 1 vagrant vagrant  0 Mar 21 19:56 test_pipe
+vagrant@vagrant:~/tmp$ echo "Hello world!" > test_pipe &
+[1] 2304
+vagrant@vagrant:~/tmp$ cat test_pipe
+Hello world!
+[1]+  Done                    echo "Hello world!" > test_pipe
+vagrant@vagrant:~/tmp$
+```
+
+
+
 
