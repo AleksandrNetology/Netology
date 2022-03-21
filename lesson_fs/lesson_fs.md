@@ -249,7 +249,7 @@ vagrant@vagrant:~$
 vagrant@vagrant:~$ stat sfile1
   File: sfile1 -> tmp/file1.txt
   Size: 13              Blocks: 0          IO Block: 4096   symbolic link
-Device: fd00h/64768d    __Inode: 1048606__     Links: 1
+Device: fd00h/64768d    Inode: 1048606     Links: 1
 Access: (0777/lrwxrwxrwx)  Uid: ( 1000/ vagrant)   Gid: ( 1000/ vagrant)
 Access: 2022-03-21 19:39:39.141533534 +0000
 Modify: 2022-03-21 19:39:22.241087535 +0000
@@ -258,7 +258,7 @@ Change: 2022-03-21 19:39:22.241087535 +0000
 vagrant@vagrant:~$ stat tmp/file1.txt
   File: tmp/file1.txt
   Size: 14              Blocks: 8          IO Block: 4096   regular file
-Device: fd00h/64768d    __Inode: 1048600__     Links: 2
+Device: fd00h/64768d    Inode: 1048600     Links: 2
 Access: (0664/-rw-rw-r--)  Uid: ( 1000/ vagrant)   Gid: ( 1000/ vagrant)
 Access: 2022-03-19 19:56:28.726622427 +0000
 Modify: 2022-03-19 19:56:22.967744427 +0000
@@ -281,8 +281,12 @@ lrwxrwxrwx 1 vagrant vagrant   27 Mar 21 19:46 sfile2 -> /home/vagrant/tmp/file1
 
 Теперь поговорим про тип файла __pipe__.
 
+Он предназначен для передачи данных от одного процесса к другому.
+Под процессом тут можно понимать не только скрипт или утилиту, запущенную в терминале,
+но и любую программу, `daemon`, работающую в ОС.
+
 С помощью  команды `mkfifo` можно создать именованный pipe. Фактически это файл, но для наглядности
-проще представить себе именованную трубу, в один конец которой какая угодно программа может заливать
+проще представить себе __именованную__ трубу, в один конец которой какая угодно программа может заливать
 данные, а с другоко конца этой трубы, любая программа может их получать.
 
 Пример:
@@ -292,7 +296,7 @@ vagrant@vagrant:~/tmp$ ls -l
 total 8
 -rw-rw-r-- 2 vagrant vagrant 14 Mar 19 19:56 file1.txt
 -rw-rw-r-- 2 vagrant vagrant 14 Mar 19 19:56 file2.txt
-__p__rw-rw-r-- 1 vagrant vagrant  0 Mar 21 19:56 test_pipe
+prw-rw-r-- 1 vagrant vagrant  0 Mar 21 19:56 test_pipe
 vagrant@vagrant:~/tmp$ echo "Hello world!" > test_pipe &
 [1] 2304
 vagrant@vagrant:~/tmp$ cat test_pipe
@@ -300,7 +304,15 @@ Hello world!
 [1]+  Done                    echo "Hello world!" > test_pipe
 vagrant@vagrant:~/tmp$
 ```
+> Обратить внимание, что при выводе `ls -l` в правах доступа к `pipe` есть символ __p__ : __p__rw-rw-r--
 
+Терминал используется в данном случае для наглядности.
+
+Вообще, когда мы в терминале используем пайпы типа: 
+```sh
+ps aux | grep 'tests' | grep 'test1'
+```
+то эти пайпы система создают анонимными и используются они только для работы в терминале.
 
 
 
