@@ -1,9 +1,9 @@
 ## Файловые системы
 
-[Схема целиком](https://upload.wikimedia.org/wikipedia/commons/f/fb/The_Linux_Storage_Stack_Diagram.svg)
+[__Схема целиком__](https://upload.wikimedia.org/wikipedia/commons/f/fb/The_Linux_Storage_Stack_Diagram.svg)
 
 Верхняя часть, которую и обсудим ниже:
-![](linux_sys_top.jpg)
+![](linux_sys_top.JPG)
 
 На картинке, всё, что находится выше Applications (process) и включая - это `user space`.\
 Всё что ниже - `kernel space`.
@@ -80,12 +80,14 @@ Change: 2021-12-19 19:39:18.555684984 +0000
 
 #### `Inodе` или `index node` - индексный дескриптор файла.
 
-inode - это область данных в файловой системе. Она хранит различные метаданные файла и указали на участки диска,
+`inode` - это область данных в файловой системе. Она хранит различные метаданные файла и указали на участки диска,
 где хранятся сами данные, находящиеся внутри файла.
 
 Индексый дескриптор имеет номер и в нашем примере `Inode = 262844`. Они хранятся отдельно в файловой системе в таблице
 индексных дескрипторов и каждый имеет уникальное значение в пределах этой файловой системы.
 Там же хранятся и указатели, о которых упоминалось выше.
+
+[__Статья про inode__](https://losst.ru/chto-takoe-inode)
 
 Что же такое hard link?
 
@@ -471,7 +473,7 @@ vagrant@vagrant:~$ stat $(which passwd) | grep Uid
 Access: (4755/-rwsr-xr-x)  Uid: (    0/    root)   Gid: (    0/    root)
 ...
 ```
-__4__755/-rw__s__r-xr-x
+__4__ 755/-rw __s__ r-xr-x
 
 Утилита `passwd` должна иметь доступ к закрытым файлам, к которым имеет доступ только `root`:
 ```sh
@@ -551,10 +553,236 @@ root@netology1:~# echo $?
 
 ### Организация хранения данных в Linux
 
-[Схема целиком](https://upload.wikimedia.org/wikipedia/commons/f/fb/The_Linux_Storage_Stack_Diagram.svg)
+[__Схема целиком__](https://upload.wikimedia.org/wikipedia/commons/f/fb/The_Linux_Storage_Stack_Diagram.svg)
 
 Нижняя часть схемы:
-![](linux_sys_btm)
+![](linux_sys_btm.JPG)
+
+Рассмотрим устройства хранения - блочные устройства на схеме выше.
+
+В вехней части был уровень приложений и файловые системы, которые опираются на устройства хранения.
+
+В подсистеме "Block Layer", блок серого цвета вверху этой картинки, есть свой шедулер `I/O scheduler` - смотреть состояние которого можно с помощью утилиты `iostat`.
+Все запросы на чтение\запись из "Block Layer" приходят в файлы-{блочные устройства}, которые находятся в директории `/dev`. Все эти устройства выглядят, как стандартные
+файлы в файловой системе, но имеют тип "устройство" и они привязаны к драйверу реального устройства.
+
+
+### Схема уровней хранения данных
+
+![](StorageData.JPG)
+
+[__Источник__](https://linuxconfig.org/choosing-the-right-linux-file-system-layout-using-a-top-bottom-process)
+
+Начнём разбирать схему снизу вверх.
+
+В самой нижней части находятся диски , которые представляют из себя блочные устройства `/dev/sd*`\
+Диски можно разделить на партиции, см. уровень выше, `partitions`, где можно уже создать блочные устройства: `/dev/sda1`, `/dev/sda2` и т.д.
+
+Партиции или даже сами диски можно объединять в программные `raid`-массивы. После чего уже созданные `raid`-массивы создают блочные устройства,
+которые уже можно будет использовать для формирования логических томов - разделы `volume group` и `filesystem logical volume` на схеме.\
+Далее, уже сформированные логические тома монтируются в файловой системе ОС.
+
+### Базовые уровни хранения данных
+
+Ниже примеры из лекции.
+
+- Блочное устройство (одиночный диск, RAID массив) – `/dev/sda`, `/dev/nvme0n1`:
+```sh
+:~# lsblk
+NAME        MAJ:MIN RM SIZE RO TYPE MOUNTPOINT
+nvme2n1     259:2    0   8G  0 disk
+```
+- Таблица разделов, раздел на блочном устройстве – `/dev/sda1`, `/dev/nvme2n1p1`:
+```sh
+nvme2n1     259:2    0   8G  0 disk └─nvme2n1p1 259:3    0   8G  0 part /
+```
+>команда `lsblk` показывает блочные устройства ОС.
+
+- Файловая система на разделе:
+```sh
+/dev/nvme2n1p1 on / type ext4 (rw,relatime,discard)
+```
+Большая гибкость ОС позволяет добавлять или заменять уровни: например, вместо создания таблицы разделов непосредственно на физическом блочном устройстве,
+можно использовать менеджер логических томов LVM2, и размещать файловую систему на его томах. Или же, таблицу разделов можно не использовать вовсе,
+разместив файловую систему напрямую на блочном устройстве.
+
+### RAID/mdadm
+
+RAID – Redundant Array of Independent Disks, избыточный массив независимых дисков.
+
+#### RAID0, RAID1
+
+>RAID0 - даёт нулевую уверенность в сохоанности данных.
+
+RAID1 - зеркало.
+
+![](raid0-1.JPG)
+
+#### RAID5, RAID6
+![](raid5-6.JPG)
+
+Вообще, всё про RAID написано в Википедии: [__RAID__](https://ru.wikipedia.org/wiki/RAID)
+
+Утилита `mdadm` предназначена для настройки программных RAID массивов Linux.
+
+Файл `/proc/mdstat` содержить данные о статусе raid массивов.
+
+Пример из лекции:
+```sh
+:~# cat /proc/mdstat
+Personalities : [linear] [multipath] [raid0] [raid1] [raid6] [raid5] [raid4] [raid10]
+md0 : active raid1 nvme1n1[1] nvme0n1[0]
+5237760 blocks super 1.2 [2/2] [UU]
+
+unused devices: <none>
+```
+Искусственно пометим один из дисков сбойным (пример из лекции):
+```sh
+:~# mdadm --fail /dev/md0 /dev/nvme1n1
+mdadm: set /dev/nvme1n1 faulty in /dev/md0
+root@ip-10-10-5-245:~# cat /proc/mdstat
+Personalities : [linear] [multipath] [raid0] [raid1] [raid6] [raid5] [raid4] [raid10]
+md0 : active raid1 nvme1n1[1](F) nvme0n1[0]
+5237760 blocks super 1.2 [2/1] [U_]
+
+unused devices: <none>
+```
+__mdadm.conf__ - конфигурация `mdadm`
+
+Пример из лекции:
+```sh
+root@vagrant:~# egrep '(DEVICE|initram)' /etc/mdadm/mdadm.conf
+# !NB! Run update-initramfs -u after updating this file.
+# !NB! This will ensure that initramfs has an uptodate copy.
+#DEVICE partitions containers
+```
+Воспользуемся инструкцией для сохранения конфигурации (пример из лекции):
+```sh
+root@vagrant:~# echo 'DEVICE partitions containers' > /etc/mdadm/mdadm.conf
+root@vagrant:~# mdadm --detail --scan >> /etc/mdadm/mdadm.conf
+
+root@vagrant:~# cat /etc/mdadm/mdadm.conf
+DEVICE partitions containers
+DEVICE partitions containers
+ARRAY /dev/md0 metadata=1.2 name=vagrant:0
+UUID=0e10b2a4:4b4a20e3:f3b7cc8d:a16a3425
+
+root@vagrant:~# update-initramfs -u
+update-initramfs: Generating /boot/initrd.img
+```
+Проверим после перезагрузки (пример из лекции):
+```sh
+root@vagrant:~# mkdir /mountpoint
+root@vagrant:~# blkid | grep md0
+/dev/md0: UUID="9555ea98-78f3-4726-86c1-f9bd25916a12" TYPE="ext4"
+root@vagrant:~# echo 'UUID=9555ea98-78f3-4726-86c1-f9bd25916a12 /mountpoint
+ext4 errors=remount-ro 0 1' >> /etc/fstab; reboot
+```
+
+### LVM2
+
+LVM - Linux Volume Manager
+
+#### Концепции менеджера логических томов
+
+LVM вводит свои абстракции:
+- физические тома – Physical Volumes, команды `pvdisplay`/`pvcreate`/`pvmove`. Это блочные устройства, на котороых мы размещаем свои логически тома.
+- физические тома объединяются в группы томов – Volume Groups, команды `vgdisplay`/`vgcreate`… Использутся как пул для создания логических томов.
+- VG служат пулом для логических томов – Logical Volumes, команды `lvdisplay`/`lvcreate`/`lvremove`
+
+```sh
+vagrant@vagrant:~$ sudo pvs
+  PV         VG        Fmt  Attr PSize   PFree
+  /dev/sda3  ubuntu-vg lvm2 a--  <63.00g <31.50g
+vagrant@vagrant:~$ sudo vgs
+  VG        #PV #LV #SN Attr   VSize   VFree
+  ubuntu-vg   1   1   0 wz--n- <63.00g <31.50g
+```
+Пример из лекции:
+```sh
+root@netology1:~# lvdisplay /dev/vgvagrant/root
+--- Logical volume --
+LV Path                /dev/vgvagrant/root
+LV Name                root
+VG Name                vgvagrant
+LV UUID                0v7tWH-gBt5-oNrf-MTrG-iCme-ipGm-BAfOEU ...
+```
+LVS даёт бОльшую гибкость для настройки файловой системы.\
+Например, для добавления новых дисков: мы всегда сможем в имеющийся VG добавить новый физический диск и таким образом расширить доступное нам место.
+Нарезать дополнительные логические тома, либо увеличить имеющиеся.
+
+### Таблица разделов
+
+Диски разбиваются на разделы и данные об этих разделах и называются таблицами разделов. Таблицы разделов хранятся на самом диске.
+
+#### Просмотр и копирование таблицы разделов
+
+Утилита `fdisk` предназначена для создания, изменения и просмотра разделов.
+
+```sh
+vagrant@vagrant:~$ sudo fdisk -l
+Disk /dev/loop1: 55.52 MiB, 58204160 bytes, 113680 sectors
+Units: sectors of 1 * 512 = 512 bytes
+Sector size (logical/physical): 512 bytes / 512 bytes
+I/O size (minimum/optimal): 512 bytes / 512 bytes
+
+Disk /dev/sda: 64 GiB, 68719476736 bytes, 134217728 sectors
+Disk model: VBOX HARDDISK
+Units: sectors of 1 * 512 = 512 bytes
+Sector size (logical/physical): 512 bytes / 512 bytes
+I/O size (minimum/optimal): 512 bytes / 512 bytes
+Disklabel type: gpt
+Disk identifier: B4F1CD46-1589-455C-BA21-5171874A019C
+
+Device       Start       End   Sectors Size Type
+/dev/sda1     2048      4095      2048   1M BIOS boot
+/dev/sda2     4096   2101247   2097152   1G Linux filesystem
+/dev/sda3  2101248 134215679 132114432  63G Linux filesystem
+
+
+Disk /dev/mapper/ubuntu--vg-ubuntu--lv: 31.51 GiB, 33822867456 bytes, 66060288 sectors
+Units: sectors of 1 * 512 = 512 bytes
+Sector size (logical/physical): 512 bytes / 512 bytes
+I/O size (minimum/optimal): 512 bytes / 512 bytes
+```
+Утилита `sfdisk` аналогичка `fdisk`, но работает в интерактивном режиме. Её лучше всего использовать для копирования разделов на другое устройство.
+
+Пример из лекции:
+```sh
+:~# sfdisk -d /dev/nvme2n1
+label: dos
+label-id: 0xb93804ca
+device: /dev/nvme2n1
+unit: sectors
+
+/dev/nvme2n1p1 : start=        2048, size=    16775135, type=83, bootable
+
+:~# sfdisk -d /dev/nvme2n1 | sfdisk <new_disk>
+```
+
+#### Создание и монтирование файловых систем, `man 5 fstab`
+
+Для создания файловых систем используется набор утилит `mkfs.<fs-name>`.\
+Например: `mkfs.ext4`
+
+Эта утилита принимает в качестве аргумента блочное устройство на котором мы хотим создать структуру файловой системы.
+
+Сама по себе созданная на разделе, томе или устройстве файловая система не появится в ОС автоматически – ее необходимо смонтировать
+Монтирование выполняется с помощью утилиты `mount`, но она монтирует временно, до перезагрузки ОС.
+
+Если есть необходимость смонтировать файловую систему на постоянной основе, то пути к ней прописываются в файле `/etc/fstab`
+```sh
+vagrant@vagrant:~$ sudo grep -v ^# /etc/fstab   | column -t
+/dev/disk/by-id/dm-uuid-LVM-aK.....	/         ext4    defaults                   0  1
+/dev/disk/by-uuid/6062f85a-eb6.....	/boot     ext4    defaults                   0  1
+/swap.img				none      swap    sw                         0  0
+vagrant					/vagrant  vboxsf  uid=1000,gid=1000,_netdev  0  0
+vagrant@vagrant:~$
+```
+
+
+
+
 
 
 
