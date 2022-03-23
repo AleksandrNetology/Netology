@@ -1,4 +1,4 @@
-### Файловые системы
+## Файловые системы
 
 ![](https://upload.wikimedia.org/wikipedia/commons/f/fb/The_Linux_Storage_Stack_Diagram.svg)
 
@@ -345,6 +345,86 @@ __socket__ – бывает сетевым, для соединения удал
 - read для просмотра содержимого директории (ls);
 - write для создания или удаления объектов из директории;
 - execute для chdir в директорию.
+
+#### Изменение владельца
+
+Команда `chown` или __change owner__, предназначена для изменения владельца/группы файла.
+
+Пример из лекции:
+```sh
+root@netology1:/tmp# touch file
+root@netology1:/tmp# chown vagrant file
+root@netology1:/tmp# stat file | grep Uid
+Access: (0644/-rw-r--r--) Uid: ( 1000/ vagrant) Gid: ( 0/ root)
+```
+С одинарным аргументом – меняет пользователя.
+
+С аргументом вида `:group` – меняет группу.
+
+Пример из лекции:
+```sh
+root@netology1:/tmp# chown :vagrant file
+root@netology1:/tmp# stat file | grep Uid
+Access: (0644/-rw-r--r--) Uid: ( 1000/ vagrant) Gid: ( 1000/ vagrant)
+```
+При вызове вида `user:`, изменит и пользователя и группу (равнозначно `user:user)`
+
+Пример из лекции:
+```sh
+root@netology1:/tmp# touch file2
+root@netology1:/tmp# chown vagrant: file2
+root@netology1:/tmp# stat file2 | grep Uid
+Access: (0644/-rw-r--r--) Uid: ( 1000/ vagrant) Gid: ( 1000/ vagrant)
+```
+
+#### Изменение прав доступа
+
+Команда `chmod` или __change mode__, предназначена для изменения битов разрешений доступа.
+
+С десятичной записью полных прав: `chmod 0755 file`, или с буквенной записью: `chmod u=rwx,g=rx,o=rx file`.
+
+Можно добавлять `(+)` или убирать `(-)` относительно имеющихся.
+
+Пример из лекции:
+```sh
+root@netology1:/tmp# stat file | grep Uid
+Access: (0755/-rwxr-xr-x) Uid: ( 1000/ vagrant) Gid: ( 1000/ vagrant)
+root@netology1:/tmp# chmod a-x file
+root@netology1:/tmp# stat file | grep Uid
+Access: (0644/-rw-r--r--) Uid: ( 1000/ vagrant) Gid: ( 1000/ vagrant)
+```
+
+#### Пользовательская маска: umask - user mask
+
+Утилита `umask`, маска, определяет, какие права доступа будут у вновь созданных файлов пользователя.
+
+Как это происходит?\
+Для директорий штатные права ОС – 0777, для файлов – 0666. Тем не менее,
+применяя `mkdir` или `touch`, вы увидите (пример из лекции):
+```sh
+vagrant@netology1:~$ mkdir dir; touch file
+vagrant@netology1:~$ stat {dir,file} | grep Uid
+Access: (0775/drwxrwxr-x) Uid: ( 1000/ vagrant) Gid: ( 1000/
+vagrant)
+Access: (0664/-rw-rw-r--) Uid: ( 1000/ vagrant) Gid: ( 1000/
+vagrant)
+```
+Как получились такие права доступа: 0775 и 0664 ?\
+Всё просто: из прав доступа *по-умолчанию* вычитается `umask`, маска: 0777-0002=0775, 0666-0002=0664
+Почему вычитается 0002?\
+Потому что так задано значение `umask` для __обычного__ пользователя:
+```sh
+vagrant@vagrant:~$ umask
+0002
+```
+Для __привилегированного__ пользоваться значение `umask` 0022:
+```sh
+vagrant@vagrant:~$ sudo -i
+root@vagrant:~# umask
+0022
+```
+
+Значение `umask` задаётся в одном из скриптов конфигурации ОС и инициализируется при загрузке.
 
 
 
