@@ -3,7 +3,7 @@
 [Схема целиком](https://upload.wikimedia.org/wikipedia/commons/f/fb/The_Linux_Storage_Stack_Diagram.svg)
 
 Верхняя часть, которую и обсудим ниже:
-![](linux_sys_top.jpg)
+![](linux_sys_top.JPG)
 
 На картинке, всё, что находится выше Applications (process) и включая - это `user space`.\
 Всё что ниже - `kernel space`.
@@ -471,7 +471,7 @@ vagrant@vagrant:~$ stat $(which passwd) | grep Uid
 Access: (4755/-rwsr-xr-x)  Uid: (    0/    root)   Gid: (    0/    root)
 ...
 ```
-__4__755/-rw__s__r-xr-x
+__4__ 755/-rw __s__ r-xr-x
 
 Утилита `passwd` должна иметь доступ к закрытым файлам, к которым имеет доступ только `root`:
 ```sh
@@ -554,7 +554,7 @@ root@netology1:~# echo $?
 [Схема целиком](https://upload.wikimedia.org/wikipedia/commons/f/fb/The_Linux_Storage_Stack_Diagram.svg)
 
 Нижняя часть схемы:
-![](linux_sys_btm)
+![](linux_sys_btm.JPG)
 
 
 
