@@ -1,6 +1,6 @@
 ## Файловые системы
 
-[Схема целиком](https://upload.wikimedia.org/wikipedia/commons/f/fb/The_Linux_Storage_Stack_Diagram.svg)
+[__Схема целиком__](https://upload.wikimedia.org/wikipedia/commons/f/fb/The_Linux_Storage_Stack_Diagram.svg)
 
 Верхняя часть, которую и обсудим ниже:
 ![](linux_sys_top.JPG)
@@ -551,18 +551,25 @@ root@netology1:~# echo $?
 
 ### Организация хранения данных в Linux
 
-[Схема целиком](https://upload.wikimedia.org/wikipedia/commons/f/fb/The_Linux_Storage_Stack_Diagram.svg)
+[__Схема целиком__](https://upload.wikimedia.org/wikipedia/commons/f/fb/The_Linux_Storage_Stack_Diagram.svg)
 
 Нижняя часть схемы:
 ![](linux_sys_btm.JPG)
 
+Рассмотрим устройства хранения - блочные устройства.
+
+В вехней части был уровень приложений и файловые системы, которые опираются на устройства хранения.
+
+В подсистеме "Block Layer", блок серого цвета вверху этой картинки, есть свой шедулер `I/O scheduler` - смотреть состояние которого можно с помощью утилиты `iostat`.
+Все запросы на чтение\запись из "Block Layer" приходят в файлы блочные устройства, которые находятся в диретории `/dev/`. Все эти устройства выглядят, как стандартные
+файлы в файловой системе, но имеют тип "устройство" и они привязаны к драйверу реального устройства.
 
 
+### Схема уровней хранения данных
 
+![](StorageData.JPG)
 
-
-
-
+[__Источник__](https://linuxconfig.org/choosing-the-right-linux-file-system-layout-using-a-top-bottom-process)
 
 
 
