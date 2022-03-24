@@ -1,50 +1,265 @@
 ## Домашнее задание к занятию "3.6. Компьютерные сети, лекция 1"
 
-1. Необязательное задание: можно посмотреть целый фильм в консоли telnet towel.blinkenlights.nl :)
-
-2. Узнайте о том, сколько действительно независимых (не пересекающихся) каналов есть в разделяемой среде WiFi при работе на 2.4 ГГц.\
-	Стандарты с полосой 5 ГГц более актуальны, но регламенты на 5 ГГц существенно различаются в разных странах, а так же не раз обновлялись.\
-	В качестве дополнительного вопроса вне зачета, попробуйте найти актуальный ответ и на этот вопрос.
-
-3. Адрес канального уровня – MAC адрес – это 6 байт, первые 3 из которых называются OUI – Organizationally Unique Identifier или уникальный\
-	идентификатор организации.\
-	Какому производителю принадлежит MAC 38:f9:d3:55:55:79?
-
-4. Каким будет payload TCP сегмента, если Ethernet MTU задан в 9001 байт, размер заголовков IPv4 – 20 байт, а TCP – 32 байта?
-
-5. Может ли во флагах TCP одновременно быть установлены флаги SYN и FIN при штатном режиме работы сети? Почему да или нет?
-
-6. `ss -ula sport = :53` на хосте имеет следующий вывод:
+### 1. Работа c HTTP через телнет.
+Подключитесь утилитой телнет к сайту stackoverflow.com telnet stackoverflow.com 80\
+отправьте HTTP запрос:
+```sh
+GET /questions HTTP/1.0
+HOST: stackoverflow.com
+[press enter]
+[press enter]
 ```
-State           Recv-Q          Send-Q                   Local Address:Port                     Peer Address:Port          Process
-UNCONN          0               0                        127.0.0.53%lo:domain                        0.0.0.0:*
+В ответе укажите полученный HTTP код, что он означает?
+
+
+=Выполнение=
+----
+
+Лог:
+```sh
+vagrant@vagrant:~$ telnet stackoverflow.com 80
+Trying 151.101.193.69...
+Connected to stackoverflow.com.
+Escape character is '^]'.
+GET /questions HTTP/1.0
+HOST: stackoverflow.com
+
+HTTP/1.1 301 Moved Permanently
+cache-control: no-cache, no-store, must-revalidate
+location: https://stackoverflow.com/questions
+x-request-guid: ed23f4cb-c0cd-4b31-a914-b563e22706fe
+feature-policy: microphone 'none'; speaker 'none'
+content-security-policy: upgrade-insecure-requests; frame-ancestors 'self' https://stackexchange.com
+Accept-Ranges: bytes
+Date: Sun, 17 Apr 2022 13:12:38 GMT
+Via: 1.1 varnish
+Connection: close
+X-Served-By: cache-hhn4049-HHN
+X-Cache: MISS
+X-Cache-Hits: 0
+X-Timer: S1650201158.413910,VS0,VE169
+Vary: Fastly-SSL
+X-DNS-Prefetch-Control: off
+Set-Cookie: prov=9c377ed4-9517-5ad2-ca37-c64687e85425; domain=.stackoverflow.com; expires=Fri, 01-Jan-2055 00:00:00 GMT; path=/; HttpOnly
+
+Connection closed by foreign host.
 ```
-Почему в State присутствует только UNCONN, и может ли там присутствовать, например, TIME-WAIT?
+__HTTP/1.1 301 Moved Permanently - запрошенный документ был окончательно перенесен на новый URI, указанный в поле `Location` т.е. сюда: https://stackoverflow.com/questions__
 
-7. Обладая знаниями о том, как штатным образом завершается соединение (FIN от инициатора, FIN-ACK от ответчика, ACK от инициатора),\
-	опишите в каких состояниях будет находиться TCP соединение в каждый момент времени на клиенте и на сервере при завершении.\
-	Схема переходов состояния соединения вам в этом поможет.
+=Выполнено=
+----
 
-8. TCP порт – 16 битное число. Предположим, 2 находящихся в одной сети хоста устанавливают между собой соединения.\
-	Каким будет теоретическое максимальное число соединений, ограниченное только лишь параметрами L4, которое параллельно может установить\
-	клиент с одного IP адреса к серверу с одним IP адресом? Сколько соединений сможет обслужить сервер от одного клиента?\
-	А если клиентов больше одного?
 
-9. Может ли сложиться ситуация, при которой большое число соединений TCP на хосте находятся в состоянии TIME-WAIT?\
-	Если да, то является ли она хорошей или плохой?\
-	Подкрепите свой ответ пояснением той или иной оценки.
+### 2. Повторите задание 1 в браузере, используя консоль разработчика F12.
+- откройте вкладку Network
+- отправьте запрос http://stackoverflow.com
+- найдите первый ответ HTTP сервера, откройте вкладку Headers
+- укажите в ответе полученный HTTP код.
+- проверьте время загрузки страницы, какой запрос обрабатывался дольше всего?
+- приложите скриншот консоли браузера в ответ.
 
-10. Чем особенно плоха фрагментация UDP относительно фрагментации TCP?
+=Выполнение=
+----
 
-11. Если бы вы строили систему удаленного сбора логов, то есть систему, в которой несколько хостов отправяют на центральный узел генерируемые\
-	приложениями логи (предположим, что логи – текстовая информация), какой протокол транспортного уровня вы выбрали бы и почему?\
-	Проверьте ваше предположение самостоятельно, узнав о стандартном протоколе syslog.
+__Полученный HTTP код: 200 -  OK — успешный запрос__
+![](hw3.6.1.jpg)
 
-12. Сколько портов TCP находится в состоянии прослушивания на вашей виртуальной машине с Ubuntu, и каким процессам они принадлежат?
+__Дольше всего грузилать какая-то статистика:__
+![](hw3.6.2.jpg)
 
-13. Какой ключ нужно добавить в tcpdump, чтобы он начал выводить не только заголовки, но и содержимое фреймов в текстовом виде?\
-	А в текстовом и шестнадцатиричном?
+=Выполнено=
+----
 
-14. Попробуйте собрать дамп трафика с помощью tcpdump на основном интерфейсе вашей виртуальной машины и посмотреть его через tshark\
-	или Wireshark (можно ограничить число пакетов -c 100). Встретились ли вам какие-то установленные флаги Internet Protocol (не флаги TCP, а флаги IP)?\
-	Узнайте, какие флаги бывают. Как на самом деле называется стандарт Ethernet, фреймы которого попали в ваш дамп? Можно ли где-то в дампе увидеть OUI?
+__3. Какой IP адрес у вас в интернете?__
+
+=Выполнение=
+----
+
+Это не мой IP, но он мне близок: 83.149.0.130
+
+=Выполнено=
+----
+
+__4. Какому провайдеру принадлежит ваш IP адрес? Какой автономной системе AS? Воспользуйтесь утилитой `whois`__
+
+=Выполнение=
+----
+
+Воспользуемся близким мне IP из предыдущего пункта.
+```sh
+vagrant@vagrant:~$ whois 83.149.0.130 | grep origin
+origin:         AS31213
+vagrant@vagrant:~$ whois 83.149.0.130 | grep descr
+descr:          North-West Branch of OJSC MegaFon
+descr:          North-West Branch of OJSC MegaFon Network.
+```
+
+=Выполнено=
+----
+
+__5. Через какие сети проходит пакет, отправленный с вашего компьютера на адрес 8.8.8.8? Через какие AS? Воспользуйтесь утилитой `traceroute`__
+
+=Выполнение=
+----
+
+Дальше будем пользовать домашнюю сеть.
+
+```sh
+vagrant@vagrant:~$ sudo traceroute -IAn 8.8.8.8
+traceroute to 8.8.8.8 (8.8.8.8), 30 hops max, 60 byte packets
+ 1  10.0.2.2 [*]  0.491 ms  0.576 ms  0.502 ms
+ 2  192.168.1.1 [*]  2.391 ms  1.938 ms  3.530 ms
+ 3  10.20.0.1 [*]  2.156 ms  4.686 ms  3.344 ms
+ 4  79.175.3.253 [AS12418]  5.432 ms  4.989 ms  5.232 ms
+ 5  10.98.78.2 [*]  5.749 ms  5.260 ms  7.217 ms
+ 6  178.18.227.12 [AS50952]  6.667 ms  5.916 ms  5.722 ms
+ 7  74.125.244.180 [AS15169]  5.551 ms  5.396 ms  5.881 ms
+ 8  72.14.232.85 [AS15169]  5.068 ms  4.912 ms  4.755 ms
+ 9  142.251.51.187 [AS15169]  9.285 ms  9.124 ms  7.840 ms
+10  142.250.56.127 [AS15169]  7.653 ms  9.202 ms  9.011 ms
+11  * * *
+12  * * *
+13  * * *
+14  * * *
+15  * * *
+16  * * *
+17  * * *
+18  * * *
+19  * * *
+20  8.8.8.8 [AS15169]  7.567 ms  7.407 ms  7.245 ms
+```
+
+=Выполнено=
+----
+
+__6. Повторите задание 5 в утилите `mtr`. На каком участке наибольшая задержка - delay?__
+
+=Выполнение=
+----
+
+```sh
+vagrant@vagrant:~$ mtr -zn 8.8.8.8
+
+                               My traceroute  [v0.93]
+vagrant (10.0.2.15)                                       2022-04-17T14:06:48+0000
+Keys:  Help   Display mode   Restart statistics   Order of fields   quit
+                                          Packets               Pings
+ Host                                   Loss%   Snt   Last   Avg  Best  Wrst StDev
+ 1. AS???    10.0.2.2                    0.0%    10    2.0   1.9   1.1   2.8   0.5
+ 2. AS???    192.168.1.1                 0.0%    10    5.5   4.8   3.9   6.0   0.7
+ 3. AS???    10.20.0.1                   0.0%    10    5.6   4.1   2.8   5.6   1.2
+ 4. AS12418  79.175.3.253                0.0%    10    4.8   5.3   4.7   7.8   0.9
+ 5. AS???    10.98.78.2                  0.0%    10    6.5   5.7   4.8   6.6   0.7
+ 6. AS???    178.18.227.12               0.0%    10    5.7   6.6   4.8  14.6   3.0
+ 7. AS15169  74.125.244.180              0.0%    10    6.0   8.1   4.8  19.2   4.7
+ 8. AS15169  72.14.232.85                0.0%    10    7.4   6.0   4.9   7.4   0.9
+ 9. AS15169  142.251.51.187              0.0%    10    9.7  15.2   8.3  29.5   7.8
+10. AS15169  142.250.56.127              0.0%    10   10.5  10.0   9.2  11.2   0.7
+11. (waiting for reply)
+12. (waiting for reply)
+13. (waiting for reply)
+14. (waiting for reply)
+15. (waiting for reply)
+16. (waiting for reply)
+17. (waiting for reply)
+18. (waiting for reply)
+19. (waiting for reply)
+20. AS15169  8.8.8.8                     0.0%     9    9.4   8.7   8.0   9.9   0.7
+```
+
+__На каком участке наибольшая задержка - delay?__
+ ```
+ 9. AS15169  142.251.51.187              0.0%    10    9.7  15.2   8.3  29.5   7.8
+```
+
+=Выполнено=
+----
+
+__7. Какие DNS сервера отвечают за доменное имя dns.google? Какие A записи? воспользуйтесь утилитой `dig`__
+
+=Выполнение=
+----
+
+```sh
+vagrant@vagrant:~$ dig dns.google
+
+; <<>> DiG 9.16.1-Ubuntu <<>> dns.google
+;; global options: +cmd
+;; Got answer:
+;; ->>HEADER<<- opcode: QUERY, status: NOERROR, id: 27895
+;; flags: qr rd ra; QUERY: 1, ANSWER: 2, AUTHORITY: 0, ADDITIONAL: 1
+
+;; OPT PSEUDOSECTION:
+; EDNS: version: 0, flags:; udp: 65494
+;; QUESTION SECTION:
+;dns.google.                    IN      A
+
+;; ANSWER SECTION:
+dns.google.             900     IN      A       8.8.4.4
+dns.google.             900     IN      A       8.8.8.8
+
+;; Query time: 52 msec
+;; SERVER: 127.0.0.53#53(127.0.0.53)
+;; WHEN: Sun Apr 17 14:03:31 UTC 2022
+;; MSG SIZE  rcvd: 71
+```
+Тип записи `А` можно посмотреть отдельно:
+```
+vagrant@vagrant:~$ dig dns.google A +noall +answer
+dns.google.             434     IN      A       8.8.8.8
+dns.google.             434     IN      A       8.8.4.4
+```
+
+=Выполнено=
+----
+
+__8. Проверьте PTR записи для IP адресов из задания 7. Какое доменное имя привязано к IP? воспользуйтесь утилитой `dig`__
+
+=Выполнение=
+----
+
+```sh
+vagrant@vagrant:~$ dig -x 8.8.8.8
+
+; <<>> DiG 9.16.1-Ubuntu <<>> -x 8.8.8.8
+;; global options: +cmd
+;; Got answer:
+;; ->>HEADER<<- opcode: QUERY, status: NOERROR, id: 42159
+;; flags: qr rd ra; QUERY: 1, ANSWER: 1, AUTHORITY: 0, ADDITIONAL: 1
+
+;; OPT PSEUDOSECTION:
+; EDNS: version: 0, flags:; udp: 65494
+;; QUESTION SECTION:
+;8.8.8.8.in-addr.arpa.          IN      PTR
+
+;; ANSWER SECTION:
+8.8.8.8.in-addr.arpa.   863     IN      PTR     dns.google.
+
+;; Query time: 4 msec
+;; SERVER: 127.0.0.53#53(127.0.0.53)
+;; WHEN: Sun Apr 17 14:21:50 UTC 2022
+;; MSG SIZE  rcvd: 73
+
+vagrant@vagrant:~$ dig -x 8.8.4.4
+
+; <<>> DiG 9.16.1-Ubuntu <<>> -x 8.8.4.4
+;; global options: +cmd
+;; Got answer:
+;; ->>HEADER<<- opcode: QUERY, status: NOERROR, id: 17697
+;; flags: qr rd ra; QUERY: 1, ANSWER: 1, AUTHORITY: 0, ADDITIONAL: 1
+
+;; OPT PSEUDOSECTION:
+; EDNS: version: 0, flags:; udp: 65494
+;; QUESTION SECTION:
+;4.4.8.8.in-addr.arpa.          IN      PTR
+
+;; ANSWER SECTION:
+4.4.8.8.in-addr.arpa.   114     IN      PTR     dns.google.
+
+;; Query time: 12 msec
+;; SERVER: 127.0.0.53#53(127.0.0.53)
+;; WHEN: Sun Apr 17 14:21:57 UTC 2022
+;; MSG SIZE  rcvd: 73
+```
+=Выполнено=
+----

@@ -11,7 +11,11 @@
 	Все эти настройки хранятся в отдельных конфигурационных файлах.
 	
 	> git config --list --show-origin - посмотреть все настройки и где она заданы.
-
+	
+	> git init - создание локального репозитория.
+	> git branch -m master main - переименование вновь созданного репозитория из нетолерантного master в более толерантный main. Дебилы пиндоевропкие.
+	> git branch --set-upstream-to=github/main main - Branch 'main' set up to track remote branch 'main' from 'github'
+	
 01. История изменения файлов;
 
 	> git status  - полный вывод статуса файлов.
