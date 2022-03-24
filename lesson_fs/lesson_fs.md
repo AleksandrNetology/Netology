@@ -556,12 +556,12 @@ root@netology1:~# echo $?
 Нижняя часть схемы:
 ![](linux_sys_btm.JPG)
 
-Рассмотрим устройства хранения - блочные устройства.
+Рассмотрим устройства хранения - блочные устройства на схеме выше.
 
 В вехней части был уровень приложений и файловые системы, которые опираются на устройства хранения.
 
 В подсистеме "Block Layer", блок серого цвета вверху этой картинки, есть свой шедулер `I/O scheduler` - смотреть состояние которого можно с помощью утилиты `iostat`.
-Все запросы на чтение\запись из "Block Layer" приходят в файлы блочные устройства, которые находятся в диретории `/dev/`. Все эти устройства выглядят, как стандартные
+Все запросы на чтение\запись из "Block Layer" приходят в файлы-{блочные устройства}, которые находятся в директории `/dev`. Все эти устройства выглядят, как стандартные
 файлы в файловой системе, но имеют тип "устройство" и они привязаны к драйверу реального устройства.
 
 
@@ -570,6 +570,112 @@ root@netology1:~# echo $?
 ![](StorageData.JPG)
 
 [__Источник__](https://linuxconfig.org/choosing-the-right-linux-file-system-layout-using-a-top-bottom-process)
+
+Начнём разбирать схему снизу вверх.
+
+В самой нижней части находятся диски , которые представляют из себя блочные устройства `/dev/sd*`\
+Диски можно разделить на партиции, см. уровень выше, `partitions`, где можно уже создать блочные устройства: `/dev/sda1`, `/dev/sda2` и т.д.
+
+Партиции или даже сами диски можно объединять в программные `raid`-массивы. После чего уже созданные `raid`-массивы создают блочные устройства,
+которые уже можно будет использовать для формирования логических томов - разделы `volume group` и `filesystem logical volume` на схеме.\
+Далее, уже сформированные логические тома монтируются в файловой системе ОС.
+
+### Базовые уровни хранения данных
+
+Ниже примеры из лекции.
+
+- Блочное устройство (одиночный диск, RAID массив) – `/dev/sda`, `/dev/nvme0n1`:
+```sh
+:~# lsblk
+NAME        MAJ:MIN RM SIZE RO TYPE MOUNTPOINT
+nvme2n1     259:2    0   8G  0 disk
+```
+- Таблица разделов, раздел на блочном устройстве – `/dev/sda1`, `/dev/nvme2n1p1`:
+```sh
+nvme2n1     259:2    0   8G  0 disk └─nvme2n1p1 259:3    0   8G  0 part /
+```
+- Файловая система на разделе:
+```sh
+/dev/nvme2n1p1 on / type ext4 (rw,relatime,discard)
+```
+Большая гибкость ОС позволяет добавлять или заменять уровни: например, вместо создания таблицы разделов непосредственно на физическом блочном устройстве,
+можно использовать менеджер логических томов LVM2, и размещать файловую систему на его томах. Или же, таблицу разделов можно не использовать вовсе,
+разместив файловую систему напрямую на блочном устройстве.
+
+### RAID/mdadm
+
+RAID – Redundant Array of Independent Disks, избыточный массив независимых дисков.
+
+#### RAID0, RAID1
+
+>RAID0 - даёт нулевую уверенность в сохоанности данных.
+
+RAID1 - зеркало.
+
+![](raid0-1.JPG)
+
+#### RAID5, RAID6
+![](raid5-6.JPG)
+
+Вообще, всё про RAID написано в Википедии: [__RAID__](https://ru.wikipedia.org/wiki/RAID)
+
+Утилита `mdadm` предназначена для настройки программных RAID массивов Linux.
+
+Файл `/proc/mdstat` содержить данные о статусе raid массивов.
+
+Пример из лекции:
+```sh
+:~# cat /proc/mdstat
+Personalities : [linear] [multipath] [raid0] [raid1] [raid6] [raid5] [raid4] [raid10]
+md0 : active raid1 nvme1n1[1] nvme0n1[0]
+5237760 blocks super 1.2 [2/2] [UU]
+
+unused devices: <none>
+```
+Искусственно пометим один из дисков сбойным (пример из лекции):
+```sh
+:~# mdadm --fail /dev/md0 /dev/nvme1n1
+mdadm: set /dev/nvme1n1 faulty in /dev/md0
+root@ip-10-10-5-245:~# cat /proc/mdstat
+Personalities : [linear] [multipath] [raid0] [raid1] [raid6] [raid5] [raid4] [raid10]
+md0 : active raid1 nvme1n1[1](F) nvme0n1[0]
+5237760 blocks super 1.2 [2/1] [U_]
+
+unused devices: <none>
+```
+__mdadm.conf__ - конфигурация `mdadm`
+
+Пример из лекции:
+```sh
+root@vagrant:~# egrep '(DEVICE|initram)' /etc/mdadm/mdadm.conf
+# !NB! Run update-initramfs -u after updating this file.
+# !NB! This will ensure that initramfs has an uptodate copy.
+#DEVICE partitions containers
+```
+Воспользуемся инструкцией для сохранения конфигурации (пример из лекции):
+```sh
+root@vagrant:~# echo 'DEVICE partitions containers' > /etc/mdadm/mdadm.conf
+root@vagrant:~# mdadm --detail --scan >> /etc/mdadm/mdadm.conf
+
+root@vagrant:~# cat /etc/mdadm/mdadm.conf
+DEVICE partitions containers
+DEVICE partitions containers
+ARRAY /dev/md0 metadata=1.2 name=vagrant:0
+UUID=0e10b2a4:4b4a20e3:f3b7cc8d:a16a3425
+
+root@vagrant:~# update-initramfs -u
+update-initramfs: Generating /boot/initrd.img
+```
+Проверим после перезагрузки (пример из лекции):
+```sh
+root@vagrant:~# mkdir /mountpoint
+root@vagrant:~# blkid | grep md0
+/dev/md0: UUID="9555ea98-78f3-4726-86c1-f9bd25916a12" TYPE="ext4"
+root@vagrant:~# echo 'UUID=9555ea98-78f3-4726-86c1-f9bd25916a12 /mountpoint
+ext4 errors=remount-ro 0 1' >> /etc/fstab; reboot
+```
+
+
 
 
 
