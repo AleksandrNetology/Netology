@@ -771,10 +771,10 @@ unit: sectors
 Если есть необходимость смонтировать файловую систему на постоянной основе, то пути к ней прописываются в файле `/etc/fstab`
 ```sh
 vagrant@vagrant:~$ sudo grep -v ^# /etc/fstab   | column -t
-/dev/disk/by-id/dm-uuid-LVM-aK.....O  /         ext4    defaults                   0  1
-/dev/disk/by-uuid/6062f85a-eb6.....   /boot     ext4    defaults                   0  1
-/swap.img							  none      swap    sw                         0  0
-vagrant								  /vagrant  vboxsf  uid=1000,gid=1000,_netdev  0  0
+/dev/disk/by-id/dm-uuid-LVM-aK.....	/         ext4    defaults                   0  1
+/dev/disk/by-uuid/6062f85a-eb6.....	/boot     ext4    defaults                   0  1
+/swap.img				none      swap    sw                         0  0
+vagrant					/vagrant  vboxsf  uid=1000,gid=1000,_netdev  0  0
 vagrant@vagrant:~$
 ```
 
