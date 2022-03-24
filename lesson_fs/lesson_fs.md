@@ -594,6 +594,8 @@ nvme2n1     259:2    0   8G  0 disk
 ```sh
 nvme2n1     259:2    0   8G  0 disk └─nvme2n1p1 259:3    0   8G  0 part /
 ```
+>команда `lsblk` показывает блочные устройства ОС.
+
 - Файловая система на разделе:
 ```sh
 /dev/nvme2n1p1 on / type ext4 (rw,relatime,discard)
@@ -674,6 +676,117 @@ root@vagrant:~# blkid | grep md0
 root@vagrant:~# echo 'UUID=9555ea98-78f3-4726-86c1-f9bd25916a12 /mountpoint
 ext4 errors=remount-ro 0 1' >> /etc/fstab; reboot
 ```
+
+### LVM2
+
+LVM - Linux Volume Manager
+
+#### Концепции менеджера логических томов
+
+LVM вводит свои абстракции:
+- физические тома – Physical Volumes, команды `pvdisplay`/`pvcreate`/`pvmove`. Это блочные устройства, на котороых мы размещаем свои логически тома.
+- физические тома объединяются в группы томов – Volume Groups, команды `vgdisplay`/`vgcreate`… Использутся как пул для создания логических томов.
+- VG служат пулом для логических томов – Logical Volumes, команды `lvdisplay`/`lvcreate`/`lvremove`
+
+```sh
+vagrant@vagrant:~$ sudo pvs
+  PV         VG        Fmt  Attr PSize   PFree
+  /dev/sda3  ubuntu-vg lvm2 a--  <63.00g <31.50g
+vagrant@vagrant:~$ sudo vgs
+  VG        #PV #LV #SN Attr   VSize   VFree
+  ubuntu-vg   1   1   0 wz--n- <63.00g <31.50g
+```
+Пример из лекции:
+```sh
+root@netology1:~# lvdisplay /dev/vgvagrant/root
+--- Logical volume --
+LV Path                /dev/vgvagrant/root
+LV Name                root
+VG Name                vgvagrant
+LV UUID                0v7tWH-gBt5-oNrf-MTrG-iCme-ipGm-BAfOEU ...
+```
+LVS даёт бОльшую гибкость для настройки файловой системы.\
+Например, для добавления новых дисков: мы всегда сможем в имеющийся VG добавить новый физический диск и таким образом расширить доступное нам место.
+Нарезать дополнительные логические тома, либо увеличить имеющиеся.
+
+### Таблица разделов
+
+Диски разбиваются на разделы и данные об этих разделах и называются таблицами разделов. Таблицы разделов хранятся на самом диске.
+
+#### Просмотр и копирование таблицы разделов
+
+Утилита `fdisk` предназначена для создания, изменения и просмотра разделов.
+
+```sh
+vagrant@vagrant:~$ sudo fdisk -l
+Disk /dev/loop1: 55.52 MiB, 58204160 bytes, 113680 sectors
+Units: sectors of 1 * 512 = 512 bytes
+Sector size (logical/physical): 512 bytes / 512 bytes
+I/O size (minimum/optimal): 512 bytes / 512 bytes
+
+Disk /dev/sda: 64 GiB, 68719476736 bytes, 134217728 sectors
+Disk model: VBOX HARDDISK
+Units: sectors of 1 * 512 = 512 bytes
+Sector size (logical/physical): 512 bytes / 512 bytes
+I/O size (minimum/optimal): 512 bytes / 512 bytes
+Disklabel type: gpt
+Disk identifier: B4F1CD46-1589-455C-BA21-5171874A019C
+
+Device       Start       End   Sectors Size Type
+/dev/sda1     2048      4095      2048   1M BIOS boot
+/dev/sda2     4096   2101247   2097152   1G Linux filesystem
+/dev/sda3  2101248 134215679 132114432  63G Linux filesystem
+
+
+Disk /dev/mapper/ubuntu--vg-ubuntu--lv: 31.51 GiB, 33822867456 bytes, 66060288 sectors
+Units: sectors of 1 * 512 = 512 bytes
+Sector size (logical/physical): 512 bytes / 512 bytes
+I/O size (minimum/optimal): 512 bytes / 512 bytes
+```
+Утилита `sfdisk` аналогичка `fdisk`, но работает в интерактивном режиме. Её лучше всего использовать для копирования разделов на другое устройство.
+
+Пример из лекции:
+```sh
+:~# sfdisk -d /dev/nvme2n1
+label: dos
+label-id: 0xb93804ca
+device: /dev/nvme2n1
+unit: sectors
+
+/dev/nvme2n1p1 : start=        2048, size=    16775135, type=83, bootable
+
+:~# sfdisk -d /dev/nvme2n1 | sfdisk <new_disk>
+```
+
+#### Создание и монтирование файловых систем, `man 5 fstab`
+
+Для создания файловых систем используется набор утилит `mkfs.<fs-name>`.\
+Например: `mkfs.ext4`
+
+Эта утилита принимает в качестве аргумента блочное устройство на котором мы хотим создать структуру файловой системы.
+
+Сама по себе созданная на разделе, томе или устройстве файловая система не появится в ОС автоматически – ее необходимо смонтировать
+Монтирование выполняется с помощью утилиты `mount`, но она монтирует временно, до перезагрузки ОС.
+
+Если есть необходимость смонтировать файловую систему на постоянной основе, то пути к ней прописываются в файле `/etc/fstab`
+```sh
+vagrant@vagrant:~$ sudo grep -v ^# /etc/fstab   | column -t
+/dev/disk/by-id/dm-uuid-LVM-aK.....O  /         ext4    defaults                   0  1
+/dev/disk/by-uuid/6062f85a-eb6.....   /boot     ext4    defaults                   0  1
+/swap.img							  none      swap    sw                         0  0
+vagrant								  /vagrant  vboxsf  uid=1000,gid=1000,_netdev  0  0
+vagrant@vagrant:~$
+```
+
+
+
+
+
+
+
+
+
+
 
 
 
